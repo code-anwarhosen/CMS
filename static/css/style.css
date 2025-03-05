@@ -1,0 +1,21 @@
+
+/* Mobile menu animation - navbar */
+.mobile-menu {
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+}
+.mobile-menu.active {
+    transform: translateX(0);
+}
+
+/* Overlay for mobile menu */
+.overlay {
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease;
+}
+.overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+/* <<=================== Navbar - END ===================>> */
