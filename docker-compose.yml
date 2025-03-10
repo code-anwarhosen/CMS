@@ -1,0 +1,65 @@
+services:
+  cms_postgres:
+    image: postgres:15
+    container_name: cms_postgres
+    environment:
+      POSTGRES_USER: cms_user
+      POSTGRES_PASSWORD: KsNj237&Y87#T_123
+      POSTGRES_DB: cms_db
+    volumes:
+      - cms_postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    networks:
+      - cms
+
+  cms_web:
+    container_name: cms_web
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: cms_web:latest
+    command: >
+      sh -c "
+      python manage.py makemigrations &&
+      python manage.py migrate &&
+      python manage.py collectstatic --no-input &&
+      gunicorn -b 0.0.0.0 -p 8000 core.wsgi:application
+      "
+    volumes:
+      - .:/app
+    restart: unless-stopped
+    environment:
+      - DEBUG=False
+      - HOST=
+      - DJANGO_SECRET_KEY=
+      - DATABASE_URL=
+    depends_on:
+      - cms_postgres
+    expose:
+      - "8000"
+    networks:
+      - cms
+
+  cms_nginx:
+    image: nginx:alpine
+    container_name: cms_nginx
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+      - ./static:/app/static
+      - ./media:/app/media
+    ports:
+      - "80:8080"
+    depends_on:
+      - cms_web
+    restart: unless-stopped
+    networks:
+      - cms
+
+volumes:
+  cms_postgres_data:
+    name: cms_postgres_data
+
+networks:
+  cms:
+    name: cms
+    driver: bridge

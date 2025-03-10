@@ -76,3 +76,19 @@ class Customer(models.Model):
         ordering = ['-id']
         verbose_name = "Customer"
         verbose_name_plural = "Customers"
+
+
+class Account(models.Model):
+    STATUS_CHOICES = [
+        ('planned', 'Planned'),
+        ('active', 'Active'),
+        ('closed', 'Closed'),
+        ('cancelled', 'Cancelled'),
+        ('returned', 'Returned')
+    ]
+    number = models.CharField(max_length=10)
+    customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='active')
+
+    def __str__(self):
+        return self.customer.name

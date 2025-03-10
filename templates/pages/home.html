@@ -4,87 +4,87 @@
 
 {% block css %}
 <style>
-    @keyframes slideIn {
+    @keyframes itemEntry {
         from { opacity: 0; transform: translateY(-10px); }
         to { opacity: 1; transform: translateY(0); }
     }
 
-    .person-card {
-        animation: slideIn 0.3s ease forwards;
+    .data-item {
+        animation: itemEntry 0.3s ease forwards;
         opacity: 0;
     }
-
-    /* Custom scrollbar for the list */
-    .scrollable-list {
-        scrollbar-width: thin;
-        scrollbar-color: #4a5568 #2d3748;
-    }
-
-    .scrollable-list::-webkit-scrollbar {
-        width: 8px;
-    }
-
-    .scrollable-list::-webkit-scrollbar-track {
+    .scroll-container::-webkit-scrollbar {
+        width: 6px;
         background: #2d3748;
         border-radius: 4px;
     }
 
-    .scrollable-list::-webkit-scrollbar-thumb {
+    .scroll-container::-webkit-scrollbar-thumb {
         background: #4a5568;
         border-radius: 4px;
-    }
-
-    .scrollable-list::-webkit-scrollbar-thumb:hover {
-        background: #718096;
     }
 </style>
 {% endblock css %}
 
 
 {% block content %}
-<main class="min-h-screen text-gray-100">
+<main class="text-gray-100">
     <div class="max-w-4xl mx-auto p-6">
-        <!-- Search Box -->
+        <!-- Search Container -->
         <div class="mb-6">
             <div class="relative">
                 <div class="flex items-center bg-gray-800/50 rounded-full">
                     <div class="absolute inset-y-0 left-1 pl-4 flex items-center pointer-events-none text-gray-400">
                         <i class="fas fa-search"></i>
                     </div>
-    
-                    <input type="text" id="searchInput" placeholder="Search customers ..."
+                    <input
+                        type="text" id="searchField" placeholder="Search records..."
                         class="w-full pl-12 pr-24 py-3 bg-transparent focus:outline-none focus:ring-0"
                     >
-                    <div class="absolute right-1 inset-y-0 flex items-center pr-2">
-                        <select id="searchType" class="bg-transparent text-gray-400 focus:outline-none focus:ring-0">
+                    <div class="absolute right-1 inset-y-0 flex items-center">
+                        <select id="filterField"
+                            class="bg-gray-800 rounded-full pl-2 py-2 text-gray-400 focus:outline-none focus:ring-0"
+                        >
+                            <option value="account">Account</option>
                             <option value="name">Name</option>
                             <option value="phone">Phone</option>
-                            <option value="account">Account</option>
                         </select>
                     </div>
                 </div>
             </div>
         </div>
-    
-        <!-- People List Container -->
+
+        <!-- Data Container -->
         <div class="bg-gray-800/40 backdrop-blur-sm rounded-2xl border border-gray-700/50 shadow-2xl overflow-hidden">
             <!-- List Header -->
-            <div class="grid grid-cols-12 gap-4 px-6 py-3 bg-gray-800/30 border-b border-gray-600 font-bold">
-                <div class="col-span-4 text-gray-400">Customer</div>
-                <div class="col-span-3 text-gray-400">Contact</div>
-                <div class="col-span-3 text-gray-400">Account</div>
-                <div class="col-span-2 text-gray-400 text-right">Due Amount</div>
+            <div class="hidden md:grid grid-cols-6 gap-4 px-6 py-3 bg-gray-800/30 border-b border-gray-700/50">
+                <div class="col-span-2 font-medium text-gray-400">Customer Name</div>
+                <div class="col-span-2 font-medium text-gray-400">Phone</div>
+                <div class="font-medium text-gray-400">Account</div>
+                <div class="font-medium text-gray-400 text-right">Balance</div>
             </div>
-    
-            <!-- People List -->
-            <div id="peopleList" class="scrollable-list divide-y divide-gray-700 max-h-[500px] overflow-y-auto">
-                <!-- People will be dynamically inserted here -->
+
+            <!-- Loading State -->
+            <div id="loadingState" class="p-8 text-center text-gray-400">
+                <i class="fas fa-spinner fa-spin text-3xl mb-4"></i>
+                <p>Loading...</p>
             </div>
-    
+
             <!-- Empty State -->
             <div id="emptyState" class="hidden p-8 text-center text-gray-400">
-                <i class="fas fa-user-slash text-3xl mb-4"></i>
-                <p>No customers found</p>
+                <i class="fas fa-folder-open text-3xl mb-4"></i>
+                <p>No records found</p>
+            </div>
+
+            <!-- Error State -->
+            <div id="errorState" class="hidden p-8 text-center text-red-400">
+                <i class="fas fa-exclamation-triangle text-3xl mb-4"></i>
+                <p>Data load failed. Please refresh the page.</p>
+            </div>
+
+            <!-- Data List -->
+            <div id="dataList" class="hidden scroll-container divide-y divide-gray-700/30 max-h-[60vh] overflow-y-auto">
+                <!-- Data items will be inserted here -->
             </div>
         </div>
     </div>
@@ -95,68 +95,97 @@
 
 {% block javascript %}
 <script>
-    // Sample Data
-    const people = [
-        {
-            name: "John Doe",
-            phone: "+880 1712-345678",
-            account: "ACC-123456",
-            due: "৳ 5,000",
-            avatar: "https://via.placeholder.com/40",
-            status: "Active"
-        }
-    ];
+    let AccountData = [];
 
-    // Function to render people list
-    function renderPeopleList(filteredPeople) {
-        const peopleList = document.getElementById('peopleList');
-        const emptyState = document.getElementById('emptyState');
-        
-        peopleList.innerHTML = filteredPeople.map((person, index) => `
-            <a href="#" class="person-card block grid grid-cols-12 gap-4 items-center px-6 py-3 hover:bg-gray-700/20 transition-all" style="animation-delay: ${index * 50}ms">
-                <div class="col-span-4 flex items-center gap-4">
-                    <img src="https://cdn-icons-png.flaticon.com/512/1246/1246314.png" class="w-10 h-10 rounded-full">
+    // DOM References
+    const DOM = {
+        query: document.getElementById('searchField'), // Input field
+        filterBy: document.getElementById('filterField'), // Dropdown select
+        dataList: document.getElementById('dataList'), // Data container
+        loadingState: document.getElementById('loadingState'),
+        emptyState: document.getElementById('emptyState'),
+        errorState: document.getElementById('errorState')
+    };
+
+    // Render Data Function
+    const renderData = (data) => {
+        DOM.dataList.innerHTML = data.map((item, index) => `
+            <a href="#" class="data-item grid grid-cols-3 md:grid-cols-6 gap-4 items-center px-6 py-2 hover:bg-gray-700/20 transition-all" 
+               style="animation-delay: ${index * 50}ms">
+                <div class="col-span-2 flex items-center gap-4">
+                    <img src="${item.avatar}" class="w-10 h-10 rounded-full">
                     <div>
-                        <h3 class="font-medium">${person.name}</h3>
-                        <span class="text-xs ${person.status === 'Active' ? 'text-green-400' : person.status === 'Overdue' ? 'text-red-400' : 'text-yellow-400'}">
-                            ${person.status}
+                        <h3 class="font-medium">${item.name}</h3>
+                        <span class="text-xs ${item.status.toLowerCase() === 'active' ? 'text-green-400' : 'text-gray-400'}">
+                            ${item.status}
                         </span>
                     </div>
                 </div>
-                <div class="col-span-3 text-gray-400">${person.phone}</div>
-                <div class="col-span-3 font-mono text-sm">${person.account}</div>
-                <div class="col-span-2 text-right font-medium ${person.status === 'Overdue' ? 'text-red-400' : 'text-blue-400'}">
-                    ${person.due}
+                <div class="hidden md:block md:col-span-2 text-gray-400">${item.phone}</div>
+                <div class="font-mono text-sm">${item.account}</div>
+                <div class="hidden md:block text-right font-medium ${item.balance < 0 ? 'text-red-400' : 'text-blue-400'}">
+                    ৳ ${Math.abs(item.balance).toLocaleString()}
                 </div>
             </a>
         `).join('');
 
-        emptyState.classList.toggle('hidden', filteredPeople.length > 0);
-        peopleList.classList.toggle('hidden', filteredPeople.length === 0);
-    }
+        DOM.emptyState.classList.toggle('hidden', data.length > 0);
+        DOM.dataList.classList.toggle('hidden', data.length === 0);
+    };
 
-    // Debounce function for smooth filtering
-    let timeout;
-    function filterPeople() {
-        clearTimeout(timeout);
-        timeout = setTimeout(() => {
-            const searchInput = document.getElementById('searchInput').value.toLowerCase();
-            const searchType = document.getElementById('searchType').value;
+    // Filter Data Function
+    const filterData = () => {
+        const queryText = DOM.query.value.toLowerCase();
+        const filterBy = DOM.filterBy.value;
 
-            const filteredPeople = people.filter(person => {
-                const searchValue = person[searchType].toLowerCase();
-                return searchValue.includes(searchInput);
-            });
+        const filtered = AccountData.filter(item => 
+            String(item[filterBy]).toLowerCase().includes(queryText)
+        );
 
-            renderPeopleList(filteredPeople);
-        }, 300);
-    }
+        renderData(filtered);
+    };
+
+    // Initialize Data Function
+    const init = async () => {
+        try {
+            DOM.loadingState.classList.remove('hidden');
+            DOM.errorState.classList.add('hidden');
+            DOM.dataList.classList.add('hidden');
+
+            // Simulated API call with dummy data
+            // await new Promise(resolve => setTimeout(resolve, 200));
+            // AccountData = [
+            //     {
+            //         name: "John Doe",
+            //         phone: "+880 1712-000000",
+            //         account: "ID-123456",
+            //         balance: 5000,
+            //         avatar: "https://via.placeholder.com/40",
+            //         status: "Active"
+            //     },
+            // ];
+
+            // Fetch data from the backend
+            const response = await fetch('/accounts/get/');
+            if (!response.ok) throw new Error('Server response error');
+            const temp = await response.json();
+            AccountData = temp.accounts;
+
+            renderData(AccountData);
+        } catch (err) {
+            console.error('Data initialization error:', err);
+            DOM.errorState.classList.remove('hidden');
+        } finally {
+            DOM.loadingState.classList.add('hidden');
+        }
+    };
 
     // Event Listeners
-    document.getElementById('searchInput').addEventListener('input', filterPeople);
-    document.getElementById('searchType').addEventListener('change', filterPeople);
+    DOM.query.addEventListener('input', filterData);
+    DOM.filterBy.addEventListener('change', filterData);
 
-    // Initial render
-    renderPeopleList(people);
+    // Start Application
+    DOM.query.focus();
+    init();
 </script>
 {% endblock javascript %}
