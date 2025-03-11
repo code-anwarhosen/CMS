@@ -32,12 +32,12 @@ def compressAvatar(image):
 
 class Customer(models.Model):
     GENDER_CHOICES = [
-        ('male', 'Male'),
-        ('female', 'Female')
+        ('Male', 'Male'),
+        ('Female', 'Female')
     ]
     GUARDIAN_TYPES = [
-        ('father', 'Father'),
-        ('husband', 'Husband'),
+        ('Father', 'Father'),
+        ('Husband', 'Husband'),
     ]
 
     name = models.CharField(max_length=100) #required
@@ -47,8 +47,8 @@ class Customer(models.Model):
     phone = models.CharField(max_length=14, help_text="Format: +880XXXXXXXXXX") #required
     occupation = models.CharField(max_length=100, blank=True, null=True)
     
-    guardian_type = models.CharField(max_length=10, choices=GUARDIAN_TYPES, blank=True, null=True)
-    guardian_name = models.CharField(max_length=100, blank=True, null=True)
+    guardianType = models.CharField(max_length=10, choices=GUARDIAN_TYPES, blank=True, null=True)
+    guardianName = models.CharField(max_length=100, blank=True, null=True)
 
     address = models.CharField(max_length=500) #required
     location_mark = models.CharField(max_length=500, blank=True, null=True)
@@ -80,13 +80,14 @@ class Customer(models.Model):
 
 class Account(models.Model):
     STATUS_CHOICES = [
-        ('planned', 'Planned'),
-        ('active', 'Active'),
-        ('closed', 'Closed'),
-        ('cancelled', 'Cancelled'),
-        ('returned', 'Returned')
+        ('Planned', 'Planned'),
+        ('Active', 'Active'),
+        ('Closed', 'Closed'),
+        ('Cancelled', 'Cancelled'),
+        ('Returned', 'Returned')
     ]
-    number = models.CharField(max_length=10)
+    number = models.CharField(max_length=10, unique=True, primary_key=True)
+    saleDate = models.DateField(auto_now_add=True)
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='active')
 

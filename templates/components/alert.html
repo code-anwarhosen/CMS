@@ -1,0 +1,89 @@
+<style>
+    /* Animation for floating message */
+    @keyframes slideIn {
+        from {
+        transform: translateY(-100%);
+        opacity: 0;
+        }
+        to {
+        transform: translateY(0);
+        opacity: 1;
+        }
+    }
+
+    @keyframes slideOut {
+        from {
+        transform: translateY(0);
+        opacity: 1;
+        }
+        to {
+        transform: translateY(-100%);
+        opacity: 0;
+        }
+    }
+
+    .floating-message {
+        animation: slideIn 0.5s ease-out;
+    }
+
+    .floating-message.hide {
+        animation: slideOut 0.5s ease-in;
+    }
+</style>
+
+<!-- Floating Message Container -->
+{% if messages %}
+<div id="messageContainer" class="z-50 fixed top-20 left-1/2 transform -translate-x-1/2 w-full max-w-md px-4">
+    
+    {% for message in messages %}
+        <div class="floating-message p-4 mb-2 rounded-lg shadow-lg text-white flex items-center space-x-3 
+            {% if message.tags == 'success' %}
+                bg-green-600
+            {% elif message.tags == 'error' %}
+                bg-red-600
+            {% elif message.tags == 'info' %}
+                bg-blue-600
+            {% else %}
+                bg-gray-600
+            {% endif %}
+        ">
+
+        {% if message.tags == 'success' %}
+            <span><i class="fas fa-check-circle"></i></span>
+        {% elif message.tags == 'error' %}
+            <span><i class="fas fa-times-circle"></i></span>
+        {% elif message.tags == 'info' %}
+            <span><i class="fas fa-info-circle"></i></span>
+        {% else %}
+            <i class="fa-solid fa-circle-exclamation"></i>
+        {% endif %}
+
+            <span class="flex-1">{{ message }}</span>
+            <button onclick="closeMessage(this)" class="ml-auto text-white hover:text-gray-300">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    {% endfor %}
+    
+</div>
+{% endif %}
+
+
+<!-- JavaScript for Floating Messages -->
+<script>
+    // Close message
+    function closeMessage(element) {
+      const messageElement = element.closest('.floating-message') || element;
+      messageElement.classList.add('hide');
+      messageElement.addEventListener('animationend', () => {
+        messageElement.remove();
+      });
+    }
+
+    // Auto-dismiss messages after 5 seconds
+    document.querySelectorAll('.floating-message').forEach(message => {
+      setTimeout(() => {
+        closeMessage(message);
+      }, 3000);
+    });
+</script>
