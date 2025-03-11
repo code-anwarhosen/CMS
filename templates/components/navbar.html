@@ -4,7 +4,7 @@
         <div class="flex items-center justify-between h-16">
             <!-- Left Section: Logo -->
             <div class="flex items-center">
-                <a href="#" class="flex-shrink-0">
+                <a href="/" class="flex-shrink-0">
                     <img class="h-[55px] h-[50px]" src="/static/images/logo-cms-squre.png" alt="Logo">
                     <!-- <h1 class="text-red-500 font-bold text-2xl">SINGER<span class="text-blue-400">CMS</span></h1> -->
                 </a>
@@ -19,9 +19,6 @@
                     Admin
                 </a>
                 <a href="#" class="text-gray-300 hover:text-indigo-400 px-3 py-2 text-sm font-medium transition-colors">
-                    Customers
-                </a>
-                <a href="#" class="text-gray-300 hover:text-indigo-400 px-3 py-2 text-sm font-medium transition-colors">
                     Guarantors
                 </a>
                 <a href="#" class="text-gray-300 hover:text-indigo-400 px-3 py-2 text-sm font-medium transition-colors">
@@ -30,10 +27,20 @@
             </div>
 
             <!-- Right Section: Buttons (Desktop) -->
-            <div class="hidden lg:flex items-center space-x-4">
-                <a href="#" class="bg-indigo-600 text-white px-6 py-2 rounded-full text-sm font-medium hover:bg-indigo-700 transition-colors">
-                    Sign Up
-                </a>
+            <div class="hidden lg:flex items-center space-x-1">
+                {% if request.user.is_authenticated %}
+                    <a href="#" class="bg-indigo-700 text-white px-3 py-2 rounded-full text-sm font-medium hover:bg-indigo-900 transition-all hover:scale-110">
+                        <i class="fa-solid fa-pen-to-square"></i> Create
+                    </a>
+                    
+                    <a href="{% url 'logout' %}" title="Logout" class="text-white px-3 py-2 rounded-full text-sm font-medium hover:bg-indigo-700 transition-all hover:scale-110">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                    </a>
+                {% else %}
+                    <a href="{% url 'sign-up' %}" class="bg-indigo-700 text-white px-4 py-2 rounded-full text-sm font-medium hover:bg-indigo-900 transition-colors">
+                        Sign Up
+                    </a>
+                {% endif %}
             </div>
 
             <!-- Mobile Menu Button -->
@@ -58,18 +65,29 @@
                 Admin
             </a>
             <a href="#" class="block text-gray-300 hover:text-indigo-400 px-3 py-2 rounded-md text-base font-medium">
-                Customer
-            </a>
-            <a href="#" class="block text-gray-300 hover:text-indigo-400 px-3 py-2 rounded-md text-base font-medium">
                 Guarantors
             </a>
             <a href="#" class="block text-gray-300 hover:text-indigo-400 px-3 py-2 rounded-md text-base font-medium">
                 Products
             </a>
-            <div class="border-t border-gray-700 pt-4">
-                <a href="#" class="block bg-indigo-600 text-white px-6 py-2 rounded-full text-sm font-medium text-center hover:bg-indigo-700 transition-colors">
-                    Sign Up
-                </a>
+            <div class="border-t border-gray-700 pt-4 space-y-1">
+                {% if request.user.is_authenticated %}
+                    <a href="#" class="block bg-indigo-700 text-white px-6 py-2 rounded-full text-sm font-medium text-center hover:bg-indigo-900 transition-colors">
+                        <i class="fa-solid fa-pen-to-square"></i> Create
+                    </a>
+                    
+                    <a href="{% url 'logout' %}" class="block text-white px-6 py-2 rounded-full text-sm font-medium text-center hover:bg-indigo-900 transition-colors">
+                        <i class="fa-solid fa-right-from-bracket"></i> Logout
+                    </a>
+                {% else %}
+                    <a href="{% url 'login' %}" class="block text-white px-6 py-2 rounded-full text-sm font-medium text-center hover:bg-indigo-900 transition-colors">
+                        Login
+                    </a>
+
+                    <a href="{% url 'sign-up' %}" class="block bg-indigo-700 text-white px-6 py-2 rounded-full text-sm font-medium text-center hover:bg-indigo-900 transition-colors">
+                        Sign Up
+                    </a>
+                {% endif %}
             </div>
         </div>
     </div>

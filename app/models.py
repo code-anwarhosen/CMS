@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 import os
 from PIL import Image
@@ -80,16 +81,14 @@ class Customer(models.Model):
 
 class Account(models.Model):
     STATUS_CHOICES = [
-        ('Planned', 'Planned'),
         ('Active', 'Active'),
         ('Closed', 'Closed'),
-        ('Cancelled', 'Cancelled'),
-        ('Returned', 'Returned')
     ]
     number = models.CharField(max_length=10, unique=True, primary_key=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='accounts')
+    customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='accounts')
     saleDate = models.DateField(auto_now_add=True)
-    customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
-    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='active')
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='Active')
 
     def __str__(self):
         return self.customer.name

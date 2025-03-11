@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block title %}Sign Up{% endblock title %}
+
+{% block content %}
+<main class="flex items-center justify-center min-h-screen">
+    <!-- Signup Card -->
+    <div class="bg-gray-800 p-8 rounded-lg shadow-lg w-full max-w-md border border-gray-700">
+        <h2 class="text-3xl font-bold text-white text-center mb-6">Sign Up</h2>
+
+        <!-- Signup Form -->
+        <form class="space-y-6" method="post" action="{% url 'sign-up' %}">
+            {% csrf_token %}
+
+            <!-- UserName Input -->
+            <div>
+                <label for="id_username" class="block text-sm font-medium text-gray-300">{{form.username.label }} *</label>
+                {{ form.username }}
+            </div>
+
+            <!-- Name Input -->
+            <div>
+                <label for="id_fullname" class="block text-sm font-medium text-gray-300">{{ form.fullname.label }} *</label>
+                {{ form.fullname }}
+            </div>
+
+            <!-- Email Input -->
+            <div>
+                <label for="id_email" class="block text-sm font-medium text-gray-300">{{ form.email.label }} *</label>
+                {{ form.email }}
+            </div>
+
+            <!-- Password Input -->
+            <div>
+                <label for="id_password1" class="block text-sm font-medium text-gray-300">{{ form.password1.label }} *</label>
+                {{ form.password1 }}
+            </div>
+
+            <!-- Retype Password Input -->
+            <div>
+                <label for="id_password2" class="block text-sm font-medium text-gray-300">{{ form.password2.label }} *</label>
+                {{ form.password2 }}
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit"
+                class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                Create Account
+            </button>
+        </form>
+
+        <!-- Login Link -->
+        <p class="mt-6 text-center text-sm text-gray-400">
+            Already have an account?
+            <a href="{% url 'login' %}" class="text-blue-400 hover:text-blue-300">Log in</a>
+        </p>
+    </div>
+</main>
+{% endblock content %}
