@@ -88,34 +88,44 @@
                 <div class="grid grid-cols-2 gap-6">
                     <div class="space-y-3">
                         <h3 class="text-blue-400 font-medium mb-2">1st Guarantor</h3>
-                        <div>
-                            <label class="text-gray-400">Name:</label>
-                            <p class="font-medium">Md. Baker Mia</p>
-                        </div>
-                        <div>
-                            <label class="text-gray-400">Mobile:</label>
-                            <p class="font-medium">+880 1712-345678</p>
-                        </div>
-                        <div>
-                            <label class="text-gray-400">Occupation:</label>
-                            <p class="font-medium">Business</p>
-                        </div>
+
+                        {% with account.guarantors.first as first_guarantor %}
+                            {% if first_guarantor %}
+                            <div>
+                                <label class="text-gray-400">Name:</label>
+                                <p class="font-medium">{{ first_guarantor.name }}</p>
+                            </div>
+                            <div>
+                                <label class="text-gray-400">Mobile:</label>
+                                <p class="font-medium">{{ first_guarantor.phone }}</p>
+                            </div>
+                            <div>
+                                <label class="text-gray-400">Occupation:</label>
+                                <p class="font-medium">{{ first_guarantor.occupation }}</p>
+                            </div>
+                            {% endif %}
+                        {% endwith %}
                     </div>
 
                     <div class="space-y-3">
                         <h3 class="text-blue-400 font-medium mb-2">2nd Guarantor</h3>
-                        <div>
-                            <label class="text-gray-400">Name:</label>
-                            <p class="font-medium">Md. Rahman Ali</p>
-                        </div>
-                        <div>
-                            <label class="text-gray-400">Mobile:</label>
-                            <p class="font-medium">+880 1712-345678</p>
-                        </div>
-                        <div>
-                            <label class="text-gray-400">Occupation:</label>
-                            <p class="font-medium">Business</p>
-                        </div>
+
+                        {% with account.guarantors.last as last_guarantor %}
+                            {% if last_guarantor %}
+                            <div>
+                                <label class="text-gray-400">Name:</label>
+                                <p class="font-medium">{{ last_guarantor.name }}</p>
+                            </div>
+                            <div>
+                                <label class="text-gray-400">Mobile:</label>
+                                <p class="font-medium">{{ last_guarantor.phone }}</p>
+                            </div>
+                            <div>
+                                <label class="text-gray-400">Occupation:</label>
+                                <p class="font-medium">{{ last_guarantor.occupation }}</p>
+                            </div>
+                            {% endif %}
+                        {% endwith %}
                     </div>
                 </div>
             </div>
@@ -132,27 +142,27 @@
                 <div class="grid grid-cols-2 gap-4">
                     <div class="space-y-2">
                         <label class="text-gray-400">Cash Value:</label>
-                        <p class="text-xl font-semibold text-blue-400">৳ 85,000</p>
+                        <p class="text-xl font-semibold text-blue-400">৳ {{ account.contract.cashValue }}</p>
                     </div>
                     <div class="space-y-2">
                         <label class="text-gray-400">Hire Value:</label>
-                        <p class="text-xl font-semibold text-blue-400">৳ 95,000</p>
+                        <p class="text-xl font-semibold text-blue-400">৳ {{ account.contract.hireValue }}</p>
                     </div>
                     <div class="space-y-2">
                         <label class="text-gray-400">Down Payment:</label>
-                        <p class="text-xl font-semibold">৳ 25,000</p>
+                        <p class="text-xl font-semibold">৳ {{ account.contract.downPayment }}</p>
                     </div>
                     <div class="space-y-2">
                         <label class="text-gray-400">Monthly Payment:</label>
-                        <p class="text-xl font-semibold">৳ 5,000</p>
+                        <p class="text-xl font-semibold">৳ {{ account.contract.monthlyPayment }}</p>
                     </div>
                     <div class="space-y-2">
                         <label class="text-gray-400">Balance Amount:</label>
-                        <p class="text-2xl font-bold text-green-400">৳ 70,000</p>
+                        <p class="text-2xl font-bold text-green-400">৳ {{ account.contract.cashBalance }}</p>
                     </div>
                     <div class="space-y-2">
                         <label class="text-gray-400">Contract Length:</label>
-                        <p class="text-xl font-semibold">12 Months</p>
+                        <p class="text-xl font-semibold">{{ account.contract.length }} Months</p>
                     </div>
                 </div>
             </div>
@@ -170,17 +180,17 @@
             <div class="grid grid-cols-2 gap-6">
                 <div>
                     <label class="text-gray-400">Product:</label>
-                    <p class="font-medium">Refrigerator</p>
+                    <p class="font-medium">{{ account.product.category }}</p>
                 </div>
                 <div>
                     <label class="text-gray-400">Model:</label>
-                    <p class="font-medium">FTDS230z-BG</p>
+                    <p class="font-medium">{{ account.product.model.name }}</p>
                 </div>
-                <div class="col-span-2">
+                <!-- <div class="col-span-2">
                     <div class="bg-yellow-200/20 text-yellow-400 p-3 rounded-lg">
                         Serial Number: 
                     </div>
-                </div>
+                </div> -->
             </div>
         </div>
     </section>
@@ -205,7 +215,7 @@
                     <tbody>
                         <!-- Sample Data - Repeat for 12 months -->
                         <tr class="even:bg-gray-700 odd:bg-gray-800 hover:bg-gray-600 transition-colors">
-                            <td class="p-3">15 Jan 2024</td>
+                            <td class="p-3">{{ account.</td>
                             <td class="p-3">RC-001234</td>
                             <td class="p-3">৳ 5,000</td>
                             <td class="p-3">৳ 65,000</td>

@@ -15,7 +15,7 @@ def LoginView(request):
         if user is not None:
             login(request, user)
             messages.success(request, 'You have successfully logged in')
-            return redirect('/')
+            return redirect('home')
         else:
             messages.error(request, 'Invalid Username or Password!')
     return render(request, 'pages/login.html')
@@ -57,16 +57,19 @@ def AccountView(request):
 
     if request.method == 'GET':
         accounts = user.accounts.all()
+        if not accounts:
+            return JsonResponse({'success': False})
+        
         serialized_data = [{
             'pk': acc.pk,
             'name': acc.customer.name if acc.customer else "Unknown",
             'phone': acc.customer.phone if acc.customer else "N/A",
             'account': acc.number,
-            'balance': 100,
-            'avatar': acc.customer.avatar.url if acc.customer and acc.customer.avatar else None,
+            'balance': acc.contract.cashBalance if acc.contract else 0,
+            'avatar': acc.customer.avatar.url if acc.customer else None,
             'status': acc.status,
         } for acc in accounts]
-        return JsonResponse({'accounts': serialized_data})
+        return JsonResponse({'success': True, 'accounts': serialized_data})
     
     elif request.method == 'POST':
         pass
@@ -76,7 +79,7 @@ def AccountDetailsView(request, pk):
     account = Account.objects.filter(pk=pk).first()
 
     if not account:
-        messages.info(request, 'This account does not exists!')
-        return redirect('/')
+        messages.info(request, 'The account you are trying to access does not exists!')
+        return redirect('home')
 
     return render(request, 'pages/accountDetails.html', {'account': account})

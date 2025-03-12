@@ -168,10 +168,17 @@
             // Fetch data from the backend
             const response = await fetch('/accounts/get/');
             if (!response.ok) throw new Error('Server response error');
-            const temp = await response.json();
-            AccountData = temp.accounts;
+            const data = await response.json();
+            
+            console.log(data);
 
-            renderData(AccountData);
+            if (data.success) {
+                AccountData = data.accounts;
+                renderData(AccountData);
+            } else {
+                DOM.emptyState.classList.remove('hidden');
+            }
+
         } catch (err) {
             console.error('Data initialization error:', err);
             DOM.errorState.classList.remove('hidden');

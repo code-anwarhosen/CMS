@@ -31,6 +31,9 @@ def compressAvatar(image):
     # Return the new compressed image
     return InMemoryUploadedFile(buffer, None, image.name, 'image/jpeg', buffer.tell(), None)
 
+
+
+
 class Customer(models.Model):
     GENDER_CHOICES = [
         ('Male', 'Male'),
@@ -40,11 +43,11 @@ class Customer(models.Model):
         ('Father', 'Father'),
         ('Husband', 'Husband'),
     ]
-
+    uid = models.BigAutoField(primary_key=True, unique=True, editable=False)
     name = models.CharField(max_length=100) #required
     age = models.PositiveIntegerField(blank=True, null=True)
     gender = models.CharField(max_length=10, choices=GENDER_CHOICES, blank=True, null=True)
-    avatar = models.ImageField(upload_to=customerAvatarPath, blank=True, null=True)
+    avatar = models.ImageField(upload_to=customerAvatarPath, blank=True, null=True, default=defaultAvatar)
     phone = models.CharField(max_length=14, help_text="Format: +880XXXXXXXXXX") #required
     occupation = models.CharField(max_length=100, blank=True, null=True)
     
@@ -62,21 +65,144 @@ class Customer(models.Model):
         return old_avatar.avatar != self.avatar if old_avatar else True
 
     def save(self, *args, **kwargs):
+        #Set custom uid
+        if not self.uid:
+            lastObj = Customer.objects.order_by('-uid').first()
+            if lastObj:
+                self.uid = lastObj.uid + 1
+            else:
+                self.uid = 100001
+
+        #Compress avatar image on condition
         if self.avatar and self._avatar_needs_compression():
             if self.avatar.name != defaultAvatar:
                 self.avatar = compressAvatar(self.avatar)
-                
-        if not self.avatar:
-            self.avatar = defaultAvatar
         super().save(*args, **kwargs)
 
     def __str__(self):
         return self.name
 
     class Meta:
+        ordering = ['-uid']
+
+
+
+class Model(models.Model):
+    name = models.CharField(max_length=100)
+    def __str__(self):
+        return self.name
+    
+class Product(models.Model):
+    CATEGORY_CHOICES = (
+        ('LED_TV', 'LED_TV'),
+        ('REF', 'REF'),
+        ('FREEZER', 'FREEZER'),
+        ('WM', 'WM'),
+        ('AC', 'AC'),
+    )
+    uid = models.BigAutoField(primary_key=True, unique=True, editable=False)
+    category = models.CharField(max_length=100, choices=CATEGORY_CHOICES)
+    model = models.ForeignKey(Model, on_delete=models.SET_NULL, null=True, blank=True)
+
+    def __str__(self):
+        return f'{self.category} : {self.model}'
+    
+    def save(self, *args, **kwargs):
+        if not self.uid:
+            lastObj = Product.objects.order_by('-uid').first()
+            if lastObj:
+                self.uid = lastObj.uid + 1
+            else:
+                self.uid = 1001
+        super().save(*args, **kwargs)
+                
+
+
+class Contract(models.Model):
+    cashValue = models.PositiveIntegerField(help_text="Total cash value")
+    hireValue = models.PositiveIntegerField(help_text="Total hire value")
+    downPayment = models.PositiveIntegerField(help_text="Down payment amount")
+    monthlyPayment = models.PositiveIntegerField(help_text="Monthly payment amount")
+    length = models.PositiveIntegerField(help_text="Length of the contract in months")
+
+    cashBalance = models.PositiveIntegerField(help_text="Remaining cash balance", editable=False)
+    hireBalance = models.PositiveIntegerField(help_text="Remaining hire balance", editable=False)
+
+    def __str__(self):
+        return f"Contract {self.id}"
+
+    class Meta:
         ordering = ['-id']
-        verbose_name = "Customer"
-        verbose_name_plural = "Customers"
+
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            self.cashBalance = self.cashValue - self.downPayment
+            self.hireBalance = self.hireValue - self.downPayment
+        super().save(*args, **kwargs)
+
+
+
+class Payment(models.Model):
+    contract = models.ForeignKey(Contract, on_delete=models.CASCADE, related_name='payments')
+    date = models.DateField(help_text="Date of the payment")
+    receiptId = models.CharField(max_length=100, unique=True, help_text="Receipt ID for the payment")
+    amount = models.PositiveIntegerField(help_text="Amount of the payment")
+
+    def __str__(self):
+        return f"Payment {self.receiptId} - {self.amount}"
+
+    class Meta:
+        ordering = ['-date']
+
+    def save(self, *args, **kwargs):
+        if not self.contract:
+            raise ValueError("Payment must be associated with a contract.")
+    
+        if self.pk:  # If the payment is being updated
+            old_payment = Payment.objects.get(pk=self.pk)
+            old_amount = old_payment.amount
+            # Revert the old payment amount from the balances
+            self.contract.cashBalance += old_amount
+            self.contract.hireBalance += old_amount
+        else:  # If the payment is being created
+            old_amount = 0
+
+        # Update the balances with the new payment amount
+        self.contract.cashBalance -= self.amount
+        self.contract.hireBalance -= self.amount
+        self.contract.save()
+        super().save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        # Revert the payment amount from the balances
+        self.contract.cashBalance += self.amount
+        self.contract.hireBalance += self.amount
+        self.contract.save()
+        super().delete(*args, **kwargs)
+
+
+
+class Guarantor(models.Model):
+    uid = models.BigAutoField(primary_key=True, unique=True, editable=False)
+    name = models.CharField(max_length=100)  #required
+    phone = models.CharField(max_length=14, help_text="Format: +880XXXXXXXXXX", blank=True, null=True)
+    occupation = models.CharField(max_length=100, blank=True, null=True)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        ordering = ['-uid']
+
+    def save(self, *args, **kwargs):
+        if not self.uid:
+            lastObj = Guarantor.objects.order_by('-uid').first()
+            if lastObj:
+                self.uid = lastObj.uid + 1
+            else:
+                self.uid = 100001
+        super().save(*args, **kwargs)
+
 
 
 class Account(models.Model):
@@ -87,8 +213,13 @@ class Account(models.Model):
     number = models.CharField(max_length=10, unique=True, primary_key=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='accounts')
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='accounts')
+    guarantors = models.ManyToManyField(Guarantor, related_name='accounts')
+    product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True)
+    contract = models.OneToOneField(Contract, on_delete=models.SET_NULL, null=True, related_name='account')
+
     saleDate = models.DateField(auto_now_add=True)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='Active')
 
     def __str__(self):
         return self.customer.name
+    
