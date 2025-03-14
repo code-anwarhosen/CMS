@@ -1,0 +1,309 @@
+<script>
+    // Global data storage
+    let appData = {
+        customers: [],
+        guarantors: [],
+        productCategories: [],
+        products: []
+    };
+
+
+
+    // Fetch initial data from Django backend
+    async function fetchInitialData() {
+        try {
+            const response = await fetch('/account-precreation/data/');
+            const result = await response.json();
+            
+            if (result.success) {
+                appData = {
+                    customers: result.data.customers || [],
+                    guarantors: result.data.guarantors || [],
+                    productCategories: result.data.productCategories || [],
+                    products: result.data.products || []
+                };
+                
+
+                // Populate product categories dropdown
+                const productCategorySelect = document.getElementById('productCategory');
+                productCategorySelect.innerHTML = '<option value="">Select Category</option>';
+                appData.productCategories.forEach(category => {
+                    const option = document.createElement('option');
+                    option.value = category.value;
+                    option.textContent = category.name;
+                    productCategorySelect.appendChild(option);
+                });
+            }
+        } catch (error) {
+            console.error('Error fetching initial data:', error);
+        }
+    }
+
+
+
+    // Populate customer/guarantor list in find modal
+    async function populateCustomerGuarantorList(type) {
+        try {
+            const listContainer = document.getElementById('customerGuarantorList');
+            listContainer.innerHTML = ''; // Clear existing items
+            
+            const data = type === 'customer' ? appData.customers : appData.guarantors;
+            
+            data.forEach(item => {
+                const listItem = document.createElement('div');
+                listItem.className = 'px-4 py-2 hover:bg-gray-700 cursor-pointer';
+                listItem.innerHTML = `
+                    <div class="flex items-center space-x-4">
+                        <div class="h-12 w-12 rounded-full bg-gray-600"></div>
+                        <div>
+                            <div class="font-semibold">${item.name}</div>
+                            <div class="text-sm text-gray-400">${item.phone}</div>
+                            <div class="text-sm text-gray-400">UID: ${item.uid}</div>
+                        </div>
+                    </div>
+                `;
+                listItem.onclick = () => handleCustomerGuarantorSelection(item, type);
+                listContainer.appendChild(listItem);
+            });
+        } catch (error) {
+            console.error('Error populating list:', error);
+        }
+    }
+
+
+
+    // Handle customer/guarantor selection
+    function handleCustomerGuarantorSelection(item, type) {
+        if (type === 'customer') {
+            document.getElementById('customerUid').value = item.uid;
+            fetchCustomerDetails(item.uid);
+        } else if (type === 'firstGuarantor') {
+            document.getElementById('firstGuarantorUid').value = item.uid;
+            fetchGuarantorDetails(item.uid, 'first');
+        } else if (type === 'secondGuarantor') {
+            document.getElementById('secondGuarantorUid').value = item.uid;
+            fetchGuarantorDetails(item.uid, 'second');
+        }
+        closeFindModal();
+    }
+
+
+
+    // Fetch customer details
+    async function fetchCustomerDetails(uid='', isNewCus=false, customer={}) {
+
+        if (isNewCus == false) { //means it called from find section
+            customer = appData.customers.find(cust => cust.uid == uid);
+        }
+
+        if (customer) {
+            document.getElementById('customerDetails').classList.remove('hidden');
+
+            document.getElementById('custName').textContent = customer.name;
+            document.getElementById('custPhone').textContent = customer.phone;
+            document.getElementById('custAddress').textContent = customer.address;
+            document.getElementById('custOccupation').textContent = customer.occupation || '-';
+        } else {
+            document.getElementById('customerDetails').classList.add('hidden');
+        }
+    }
+
+
+
+    // Fetch guarantor details
+    async function fetchGuarantorDetails(uid, type) {
+        const detailsContainer = type === 'first' ? 'firstGuarantorDetails' : 'secondGuarantorDetails';
+        const guarantor = appData.guarantors.find(guar => guar.uid == uid);
+
+        if (guarantor) {
+            document.getElementById(detailsContainer).classList.remove('hidden');
+
+            document.getElementById(`${type}GuarantorName`).textContent = guarantor.name;
+            document.getElementById(`${type}GuarantorPhone`).textContent = guarantor.phone;
+            document.getElementById(`${type}GuarantorOccupation`).textContent = guarantor.occupation || '-';
+            document.getElementById(`${type}GuarantorAddress`).textContent = guarantor.address || '-';
+        } else {
+            document.getElementById(detailsContainer).classList.add('hidden');
+        }
+    }
+
+
+
+    // Populate product models based on selected category
+    function populateProductModels(category) {
+        const modelList = document.getElementById('modelList');
+        modelList.innerHTML = '';
+        
+        const filteredProducts = appData.products.filter(product => product.category === category);
+        
+        filteredProducts.forEach(product => {
+            const modelItem = document.createElement('div');
+            modelItem.className = 'p-2 hover:bg-gray-500 cursor-pointer';
+            modelItem.textContent = product.model;
+            modelItem.onclick = () => {
+                document.getElementById('selectedModel').classList.remove('hidden');
+                document.getElementById('selectedModelName').textContent = product.model;
+            };
+            modelList.appendChild(modelItem);
+        });
+    }
+
+
+
+    // Handle product category change
+    document.getElementById('productCategory').addEventListener('change', (e) => {
+        populateProductModels(e.target.value);
+    });
+
+
+
+    // Handle search input in find modal
+    document.getElementById('searchInput').addEventListener('input', (e) => {
+        const searchTerm = e.target.value.toLowerCase();
+        const items = document.querySelectorAll('#customerGuarantorList > div');
+
+        items.forEach(item => {
+            const name = item.querySelector('.font-semibold').textContent.toLowerCase();
+            const phone = item.querySelector('.text-sm').textContent.toLowerCase();
+            if (name.includes(searchTerm) || phone.includes(searchTerm)) {
+                item.classList.remove('hidden');
+            } else {
+                item.classList.add('hidden');
+            }
+        });
+    });
+
+
+
+    // Handle model filter input
+    document.getElementById('modelFilter').addEventListener('input', (e) => {
+        const searchTerm = e.target.value.toLowerCase();
+        const models = document.querySelectorAll('#modelList > div');
+
+        models.forEach(model => {
+            if (model.textContent.toLowerCase().includes(searchTerm)) {
+                model.classList.remove('hidden');
+            } else {
+                model.classList.add('hidden');
+            }
+        });
+    });
+
+
+
+    // Initialize data fetch when page loads
+    document.addEventListener('DOMContentLoaded', () => {
+        fetchInitialData();
+    });
+
+
+
+    // Modal Handling
+    function openFindModal(type) {
+        currentModalType = type;
+        document.getElementById('findModalTitle').textContent = `Find ${type === 'customer' ? 'Customer' : 'Guarantor'}`;
+        document.getElementById('findModal').classList.add('open');
+        populateCustomerGuarantorList(type);
+    }
+
+    function closeFindModal() {
+        document.getElementById('findModal').classList.remove('open');
+    }
+
+    function openCreateCustomerModal() {
+        document.getElementById('createCustomerModal').classList.add('open');
+    }
+
+    function closeCreateCustomerModal() {
+        document.getElementById('createCustomerModal').classList.remove('open');
+    }
+
+    function openCreateGuarantorModal() {
+        document.getElementById('createGuarantorModal').classList.add('open');
+    }
+
+    function closeCreateGuarantorModal() {
+        document.getElementById('createGuarantorModal').classList.remove('open');
+    }
+
+
+    
+
+    // Customer creation form submit 
+    function handleCreateCustomerSubmit(event) {
+        event.preventDefault(); // Prevent the default form submission
+    
+        // Gather form data
+        const formData = new FormData(event.target);
+        const data = {};
+
+        formData.forEach((value, key) => {
+            data[key] = value;
+        });
+    
+
+        // Make a POST request to the server
+        fetch('/customer/create/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': data.csrfmiddlewaretoken,
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => {
+            if (!response.ok) {
+                showToast("Something went wrong!");
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            showToast(data.message);
+            if (data.status == 'success') {
+                fetchCustomerDetails(uid="", isNewCus=true, customer=data.customer);
+                closeCreateCustomerModal();
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showToast(error);
+        });
+    }
+    
+
+
+
+    // Submit Form
+    function submitForm() {
+        const formData = {
+            accountNumber: document.querySelector('#accountNumber').value,
+            saleDate: document.querySelector('#saleDate').value,
+
+            customerUid: document.querySelector('#customerUid').value,
+            firstGuarantorUid: document.querySelector('#firstGuarantorUid').value,
+            secondGuarantorUid: document.querySelector('#secondGuarantorUid').value,
+
+            productCategory: document.querySelector('#productCategory').value,
+            selectedModel: document.querySelector('#selectedModelName').textContent,
+
+            cashValue: document.querySelector('#cashValue').value,
+            hireValue: document.querySelector('#hireValue').value,
+            downPayment: document.querySelector('#downPayment').value,
+            monthlyPayment: document.querySelector('#monthlyPayment').value,
+            length: document.querySelector('#length').value,
+        };
+
+        console.log('Form Data:', formData); // Simulate form submission
+        alert('Form submitted successfully!');
+    }
+
+
+
+    // Close modals on outside click
+    window.onclick = function(event) {
+        if (event.target.classList.contains('modal')) {
+            event.target.classList.remove('open');
+        }
+    }
+</script>

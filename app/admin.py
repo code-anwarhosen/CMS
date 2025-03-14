@@ -5,19 +5,22 @@ from .models import Customer, Model, Product, Contract, Payment, Guarantor, Acco
 
 @admin.register(Customer)
 class CustomerAdmin(admin.ModelAdmin):
-    list_display = ('uid', 'name', 'phone', 'gender', 'age', 'occupation', 'avatar_preview')
-    list_filter = ('gender', 'occupation')
+    list_display = ('uid', 'name', 'phone', 'age', 'occupation', 'avatar_preview')
+    list_filter = ('occupation', )
     search_fields = ('name', 'phone', 'address')
     readonly_fields = ('uid', 'avatar_preview')
     fieldsets = (
+        ('Creator', {
+            'fields': ('creator',)
+        }),
         ('Personal Information', {
-            'fields': ('uid', 'name', 'age', 'gender', 'phone', 'occupation')
+            'fields': ('uid', 'name', 'age', 'phone', 'occupation')
         }),
         ('Guardian Information', {
             'fields': ('guardianType', 'guardianName')
         }),
         ('Address Information', {
-            'fields': ('address', 'location_mark')
+            'fields': ('address', 'locationMark')
         }),
         ('Avatar', {
             'fields': ('avatar', 'avatar_preview')
@@ -39,10 +42,9 @@ class ModelAdmin(admin.ModelAdmin):
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ('uid', 'category', 'model')
+    list_display = ('id', 'category', 'model')
     list_filter = ('category', 'model')
     search_fields = ('category', 'model__name')
-    readonly_fields = ('uid',)
 
 
 @admin.register(Contract)
@@ -77,12 +79,13 @@ class GuarantorAdmin(admin.ModelAdmin):
 class AccountAdmin(admin.ModelAdmin):
     list_display = ('number', 'customer', 'product', 'contract', 'status', 'saleDate')
     list_filter = ('status', 'saleDate')
+
     search_fields = ('number', 'customer__name', 'product__category')
     filter_horizontal = ('guarantors',)
-    readonly_fields = ('number', 'saleDate')
+    
     fieldsets = (
         ('Account Information', {
-            'fields': ('number', 'user', 'customer', 'product', 'contract', 'status')
+            'fields': ('creator', 'number', 'customer', 'product', 'contract', 'status')
         }),
         ('Guarantors', {
             'fields': ('guarantors',)

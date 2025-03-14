@@ -1,0 +1,405 @@
+{% extends "base.html" %}
+
+
+{% block title %}Create New Account{% endblock title %}Create New Account
+
+
+{% block css %}
+    {% include "pages/accountCreate/css.html" %}
+{% endblock css %}
+
+
+
+{% block content %}
+<main class="bg-gray-900 text-gray-100 min-h-screen p-6">
+    <!-- Main Form Container -->
+    <div class="max-w-4xl mx-auto space-y-8">
+
+        <!-- Account Section -->
+        <section class="bg-gray-800 p-6 rounded-lg shadow-lg">
+            <h2 class="text-2xl font-bold mb-4 border-b border-gray-700 pb-2">Account Information</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                <div>
+                    <label class="block mb-2">Account Number</label>
+                    <input type="text" id="accountNumber" placeholder="Example: DKC-H1" class="w-full bg-gray-700 rounded p-2 focus:ring-1 focus:ring-blue-500 outline-none border-b border-gray-300">
+                </div>
+
+                <div>
+                    <label class="block mb-2">Sale Date</label>
+                    <input type="date" id="saleDate" class="w-full bg-gray-700 rounded p-2 focus:ring-1 focus:ring-blue-500 outline-none border-b border-gray-300">
+                    <script>
+                        const saleDateinput = document.getElementById('saleDate');
+                        const today = new Date().toLocaleDateString('en-CA'); // 'en-CA' gives YYYY-MM-DD format
+                        saleDateinput.value = today;
+                        saleDateinput.max = today;
+                    </script>
+                </div>
+            </div>
+        </section>
+
+
+        
+        <!-- Customer Section -->
+        <section class="bg-gray-800 p-6 rounded-lg shadow-lg">
+            <div class="flex flex-col md:flex-row justify-between items-center mb-4">
+                <h2 class="text-2xl font-bold border-b border-gray-700 pb-2">Customer Information</h2>
+                <div class="space-x-2 mt-4 md:mt-0">
+                    <button onclick="openFindModal('customer')" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded">
+                        Find Customer
+                    </button>
+                    <button onclick="openCreateCustomerModal()" class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded">
+                        Create New
+                    </button>
+                </div>
+            </div>
+            
+
+
+            <!-- Customer UID Input -->
+            <div class="mb-4">
+                <label class="block mb-2">Customer UID</label>
+                <input type="text" id="customerUid" 
+                       class="w-full bg-gray-700 rounded p-2 focus:ring-1 focus:ring-blue-500 outline-none border-b border-gray-300"
+                       onblur="fetchCustomerDetails(this.value)">
+            </div>
+
+
+
+            <!-- Customer Details Display -->
+            <div id="customerDetails" class="bg-gray-600 p-4 rounded hidden">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div><span class="font-semibold">Name:</span> <span id="custName">-</span></div>
+                    <div><span class="font-semibold">Phone:</span> <span id="custPhone">-</span></div>
+                    <div><span class="font-semibold">Address:</span> <span id="custAddress">-</span></div>
+                    <div><span class="font-semibold">Occupation:</span> <span id="custOccupation">-</span></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Guarantor Section -->
+        <section class="bg-gray-800 p-6 rounded-lg shadow-lg">
+            <h2 class="text-2xl font-bold border-b border-gray-700 pb-2">Guarantor Information</h2>
+
+            <!-- First Guarantor -->
+            <div class="mt-4">
+                <div class="flex flex-col md:flex-row justify-between items-center mb-4">
+                    <h3 class="text-xl font-bold">First Guarantor</h3>
+                    <div class="space-x-2 mt-4 md:mt-0">
+                        <button onclick="openFindModal('firstGuarantor')" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded">
+                            Find Guarantor
+                        </button>
+                        <button onclick="openCreateGuarantorModal()" class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded">
+                            Create New
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- First Guarantor UID Input -->
+                <div class="mb-4">
+                    <label class="block mb-2">First Guarantor UID</label>
+                    <input type="text" id="firstGuarantorUid" 
+                           class="w-full bg-gray-700 rounded p-2 focus:ring-1 focus:ring-blue-500 outline-none border-b border-gray-300"
+                           onblur="fetchGuarantorDetails(this.value, 'first')">
+                </div>
+
+                <!-- First Guarantor Details Display -->
+                <div id="firstGuarantorDetails" class="bg-gray-600 p-4 rounded hidden">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div><span class="font-semibold">Name:</span> <span id="firstGuarantorName">-</span></div>
+                        <div><span class="font-semibold">Phone:</span> <span id="firstGuarantorPhone">-</span></div>
+                        <div><span class="font-semibold">Occupation:</span> <span id="firstGuarantorOccupation">-</span></div>
+                        <div><span class="font-semibold">Address:</span> <span id="firstGuarantorAddress">-</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Second Guarantor -->
+            <div class="mt-8">
+                <div class="flex flex-col md:flex-row justify-between items-center mb-4">
+                    <h3 class="text-xl font-bold">Second Guarantor</h3>
+                    <div class="space-x-2 mt-4 md:mt-0">
+                        <button onclick="openFindModal('secondGuarantor')" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded">
+                            Find Guarantor
+                        </button>
+                        <button onclick="openCreateGuarantorModal()" class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded">
+                            Create New
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Second Guarantor UID Input -->
+                <div class="mb-4">
+                    <label class="block mb-2">Second Guarantor UID</label>
+                    <input type="text" id="secondGuarantorUid" 
+                           class="w-full bg-gray-700 rounded p-2 focus:ring-1 focus:ring-blue-500 outline-none border-b border-gray-300"
+                           onblur="fetchGuarantorDetails(this.value, 'second')">
+                </div>
+
+                <!-- Second Guarantor Details Display -->
+                <div id="secondGuarantorDetails" class="bg-gray-600 p-4 rounded hidden">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div><span class="font-semibold">Name:</span> <span id="secondGuarantorName">-</span></div>
+                        <div><span class="font-semibold">Phone:</span> <span id="secondGuarantorPhone">-</span></div>
+                        <div><span class="font-semibold">Occupation:</span> <span id="secondGuarantorOccupation">-</span></div>
+                        <div><span class="font-semibold">Address:</span> <span id="secondGuarantorAddress">-</span></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+
+
+        <!-- Product Section -->
+        <section class="bg-gray-800 p-6 rounded-lg shadow-lg">
+            <h2 class="text-2xl font-bold border-b border-gray-700 pb-2">Product Information</h2>
+
+            <div class="mt-4 grid grid-cols-2 gap-4">
+                <!-- Product Category Dropdown -->
+                <div>
+                    <label class="block mb-2">Product Category</label>
+                    <select id="productCategory" class="w-full bg-gray-700 rounded p-2 focus:ring-1 focus:ring-blue-500 outline-none border-b border-gray-300">
+                        <option value="">Select Category</option>
+                    </select>
+                </div>
+
+                <!-- Product Model Filter and List -->
+                <div>
+                    <label class="block mb-2">Product Model</label>
+                    <input type="text" id="modelFilter" placeholder="Search for a model..." 
+                           class="w-full bg-gray-700 rounded p-2 focus:ring-1 focus:ring-blue-500 outline-none border-b border-gray-300">
+                    
+                    <div id="modelList" class="min-h-36 max-h-36 overflow-y-auto bg-gray-600 rounded p-2 space-y-2">
+                        <!-- Models will be dynamically populated here -->
+                    </div>
+                </div>
+
+                <!-- Selected Model Display -->
+                <div id="selectedModel" class="-mt-36 max-h-12">
+                    <div class="font-semibold">Selected Model: <span id="selectedModelName">-</span></div>
+                </div>
+            </div>
+        </section>
+
+
+
+
+        <!-- Contract Section -->
+        <section class="bg-gray-800 p-6 rounded-lg shadow-lg">
+            <h2 class="text-2xl font-bold border-b border-gray-700 pb-2">Contract Information</h2>
+
+            <div class="mt-4 grid grid-cols-2 gap-x-6 gap-y-4">
+                <!-- Cash Value -->
+                <div>
+                    <label class="block mb-2">Cash Value</label>
+                    <input type="number" id="cashValue" 
+                           class="w-full bg-gray-700 rounded p-2 focus:ring-1 focus:ring-blue-500 outline-none border-b border-gray-300">
+                </div>
+
+                <!-- Hire Value -->
+                <div>
+                    <label class="block mb-2">Hire Value</label>
+                    <input type="number" id="hireValue" 
+                           class="w-full bg-gray-700 rounded p-2 focus:ring-1 focus:ring-blue-500 outline-none border-b border-gray-300">
+                </div>
+
+                <!-- Down Payment -->
+                <div>
+                    <label class="block mb-2">Down Payment</label>
+                    <input type="number" id="downPayment" 
+                           class="w-full bg-gray-700 rounded p-2 focus:ring-1 focus:ring-blue-500 outline-none border-b border-gray-300">
+                </div>
+
+                <!-- Monthly Payment -->
+                <div>
+                    <label class="block mb-2">Monthly Payment</label>
+                    <input type="number" id="monthlyPayment" 
+                           class="w-full bg-gray-700 rounded p-2 focus:ring-1 focus:ring-blue-500 outline-none border-b border-gray-300">
+                </div>
+
+                <!-- Length (in months) -->
+                <div>
+                    <label class="block mb-2">Length of contract</label>
+                    <input type="number" id="length" 
+                           class="w-full bg-gray-700 rounded p-2 focus:ring-1 focus:ring-blue-500 outline-none border-b border-gray-300">
+                </div>
+            </div>
+        </section>
+
+        <!-- Create Button -->
+        <div class="flex justify-center">
+            <button onclick="submitForm()" class="bg-green-700 hover:bg-green-900 px-6 py-3 rounded text-lg font-semibold">
+                Create Account
+            </button>
+        </div>
+    </div>
+
+
+
+
+
+
+    <!-- Find Customer/Guarantor Modal -->
+    <div id="findModal" class="modal fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+        <div class="modal-content bg-gray-800 rounded-lg w-full max-w-2xl max-h-[80vh] overflow-hidden flex flex-col">
+            <div class="p-4 border-b border-gray-700">
+
+                <div class="flex justify-between">
+                    <h3 class="text-xl font-bold" id="findModalTitle">Find Customer</h3>
+                    <button onclick="closeFindModal()" class="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded">
+                        X
+                    </button>
+                </div>
+
+                <input type="text" id="searchInput" placeholder="Search by name or phone..." 
+                       class="w-full mt-4 bg-gray-700 rounded p-2 focus:ring-1 focus:ring-blue-500 outline-none border-b border-gray-300">
+            </div>
+
+            <div class="flex-1 p-4">
+                <div id="customerGuarantorList" class="modal-content divide-y space-y-1 rounded-lg divide-gray-700  overflow-y-auto min-h-[50vh] max-h-[50vh]">
+                    <!-- Customer/Guarantor items will be dynamically populated here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+    <!-- Create Customer Modal -->
+    <div id="createCustomerModal" class="modal fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+        <div class="modal-content bg-gray-800 rounded-lg w-full max-w-2xl max-h-[80vh] overflow-hidden flex flex-col">
+
+            <div class="p-4 border-b border-gray-700 flex justify-between">
+                <h3 class="text-xl font-bold">Create New Customer</h3>
+                <button type="button" onclick="closeCreateCustomerModal()" class="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded">
+                    X
+                </button>
+            </div>
+
+            <form id="createCustomerForm" onsubmit="handleCreateCustomerSubmit(event)" class="modal-content overflow-y-auto p-4 space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                    {% csrf_token %}
+                    <div>
+                        <label class="block mb-2">Full Name *</label>
+                        <input type="text" name="fullname" required class="w-full bg-gray-700 rounded p-2 focus:ring-1 focus:ring-blue-500 outline-none border-b border-gray-300">
+                    </div>
+
+                    <div>
+                        <label class="block mb-2">Age</label>
+                        <input type="number" name="age" class="w-full bg-gray-700 rounded p-2 focus:ring-1 focus:ring-blue-500 outline-none border-b border-gray-300">
+                    </div>
+
+                    <div>
+                        <label class="block mb-2">Phone Number *</label>
+                        <input type="tel" name="phone" required placeholder="Example: 019XXXXXXXX" class="w-full bg-gray-700 rounded p-2 focus:ring-1 focus:ring-blue-500 outline-none border-b border-gray-300">
+                    </div>
+
+                    <div>
+                        <label class="block mb-2">Occupation</label>
+                        <select name="occupation" class="w-full bg-gray-700 rounded p-2 focus:ring-1 focus:ring-blue-500 outline-none border-b border-gray-300">
+                            <option value="">Select Occupation</option>
+
+                            {% for occupation in occupationOptions %}  
+                                <option value="{{ occupation.value }}"> {{ occupation.name }} </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block mb-2">Address *</label>
+                        <input required name="address" class="w-full bg-gray-700 rounded p-2 focus:ring-1 focus:ring-blue-500 outline-none border-b border-gray-300">
+                    </div>
+
+                    <div>
+                        <label class="block mb-2">Location Mark</label>
+                        <input type="text" name="locationMark" class="w-full bg-gray-700 rounded p-2 focus:ring-1 focus:ring-blue-500 outline-none border-b border-gray-300">
+                    </div>
+
+                    <div>
+                        <label class="block mb-2">Guardian Type</label>
+                        <div class="flex space-x-4 w-full bg-gray-700 rounded p-2 focus:ring-1 focus:ring-blue-500 outline-none border-b border-gray-300">
+                            <label class="flex items-center">
+                                <input type="radio" name="guardianType" value="Father" class="mr-2">
+                                Father
+                            </label>
+                            <label class="flex items-center">
+                                <input type="radio" name="guardianType" value="Husband" class="mr-2">
+                                Husband
+                            </label>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block mb-2">Guardian Name</label>
+                        <input type="text" name="guardianName" class="w-full bg-gray-700 rounded p-2 focus:ring-1 focus:ring-blue-500 outline-none border-b border-gray-300">
+                    </div>
+                </div>
+
+                <div class="flex justify-end space-x-2">
+                    <button type="button" onclick="closeCreateCustomerModal()" class="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded">
+                        Cancel
+                    </button>
+                    <button type="submit" class="px-4 py-2 bg-green-600 hover:bg-green-700 rounded">
+                        Create
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+
+    <!-- Create Guarantor Modal -->
+    <div id="createGuarantorModal" class="modal fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+        <div class="modal-content bg-gray-800 rounded-lg w-full max-w-2xl max-h-[80vh] overflow-hidden flex flex-col">
+            <div class="p-4 border-b border-gray-700">
+                <h3 class="text-xl font-bold">Create New Guarantor</h3>
+            </div>
+            
+            <form id="createGuarantorForm" onsubmit="handleCreateGuarantorSubmit(event)" class="modal-content overflow-y-auto p-4 space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block mb-2">Full Name</label>
+                        <input type="text" required class="w-full bg-gray-700 rounded p-2 focus:ring-1 focus:ring-blue-500 outline-none border-b border-gray-300">
+                    </div>
+                    <div>
+                        <label class="block mb-2">Phone Number</label>
+                        <input type="tel" required class="w-full bg-gray-700 rounded p-2 focus:ring-1 focus:ring-blue-500 outline-none border-b border-gray-300">
+                    </div>
+
+                    <div>
+                        <label class="block mb-2">Address</label>
+                        <input class="w-full bg-gray-700 rounded p-2 focus:ring-1 focus:ring-blue-500 outline-none border-b border-gray-300">
+                    </div>
+
+                    <div>
+                        <label class="block mb-2">Occupation</label>
+                        <select class="w-full bg-gray-700 rounded p-2 focus:ring-1 focus:ring-blue-500 outline-none border-b border-gray-300">
+                            <option value="">Select Occupation</option>
+
+                            {% for occupation in occupationOptions %}  
+                                <option value="{{ occupation.value }}"> {{ occupation.name }} </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="flex justify-end space-x-2">
+                    <button type="button" onclick="closeCreateGuarantorModal()" class="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded">
+                        Cancel
+                    </button>
+                    <button type="submit" class="px-4 py-2 bg-green-600 hover:bg-green-700 rounded">
+                        Create
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</main>
+{% endblock content %}
+
+
+{% block javascript %}
+    {% include "pages/accountCreate/javascript.html" %}
+{% endblock javascript %}

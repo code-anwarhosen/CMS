@@ -33,29 +33,50 @@ def compressAvatar(image):
 
 
 
+GUARDIAN_TYPES = [
+    ('Father', 'Father'),
+    ('Husband', 'Husband')
+]
+OCCUPATIONS = [
+    ('Job', 'Job'),
+    ('GovtJob', 'Govt. Job'),
+    ('Business', 'Business'),
+    ('Student', 'Student'),
+    ('Housewife', 'Housewife'),
+
+    ('Teacher', 'Teacher'),
+    ('Doctor', 'Doctor'),
+    ('Other', 'Other'),
+]
+
+PRODUCT_CATEGORIES = [
+    ('LED_TV', 'LED TV'),
+    ('REF', 'REF'),
+    ('FREEZER', 'FREEZER'),
+    ('WM', 'WM'),
+    ('AC', 'AC'),
+]
+
+ACCOUNT_STATUSES = [
+    ('Active', 'Active'),
+    ('Closed', 'Closed'),
+]
 
 class Customer(models.Model):
-    GENDER_CHOICES = [
-        ('Male', 'Male'),
-        ('Female', 'Female')
-    ]
-    GUARDIAN_TYPES = [
-        ('Father', 'Father'),
-        ('Husband', 'Husband'),
-    ]
+    creator = models.ForeignKey(User, on_delete=models.CASCADE, null=True, related_name='customers')
     uid = models.BigAutoField(primary_key=True, unique=True, editable=False)
+
     name = models.CharField(max_length=100) #required
     age = models.PositiveIntegerField(blank=True, null=True)
-    gender = models.CharField(max_length=10, choices=GENDER_CHOICES, blank=True, null=True)
     avatar = models.ImageField(upload_to=customerAvatarPath, blank=True, null=True, default=defaultAvatar)
     phone = models.CharField(max_length=14, help_text="Format: +880XXXXXXXXXX") #required
-    occupation = models.CharField(max_length=100, blank=True, null=True)
+    occupation = models.CharField(max_length=100, choices=OCCUPATIONS, blank=True, null=True)
     
     guardianType = models.CharField(max_length=10, choices=GUARDIAN_TYPES, blank=True, null=True)
     guardianName = models.CharField(max_length=100, blank=True, null=True)
 
     address = models.CharField(max_length=500) #required
-    location_mark = models.CharField(max_length=500, blank=True, null=True)
+    locationMark = models.CharField(max_length=500, blank=True, null=True)
 
     def _avatar_needs_compression(self):
         """ Check if the avatar needs to be compressed (only if it has changed). """
@@ -71,7 +92,7 @@ class Customer(models.Model):
             if lastObj:
                 self.uid = lastObj.uid + 1
             else:
-                self.uid = 100001
+                self.uid = 1000001
 
         #Compress avatar image on condition
         if self.avatar and self._avatar_needs_compression():
@@ -93,29 +114,12 @@ class Model(models.Model):
         return self.name
     
 class Product(models.Model):
-    CATEGORY_CHOICES = (
-        ('LED_TV', 'LED_TV'),
-        ('REF', 'REF'),
-        ('FREEZER', 'FREEZER'),
-        ('WM', 'WM'),
-        ('AC', 'AC'),
-    )
-    uid = models.BigAutoField(primary_key=True, unique=True, editable=False)
-    category = models.CharField(max_length=100, choices=CATEGORY_CHOICES)
+    category = models.CharField(max_length=100, choices=PRODUCT_CATEGORIES)
     model = models.ForeignKey(Model, on_delete=models.SET_NULL, null=True, blank=True)
 
     def __str__(self):
         return f'{self.category} : {self.model}'
     
-    def save(self, *args, **kwargs):
-        if not self.uid:
-            lastObj = Product.objects.order_by('-uid').first()
-            if lastObj:
-                self.uid = lastObj.uid + 1
-            else:
-                self.uid = 1001
-        super().save(*args, **kwargs)
-                
 
 
 class Contract(models.Model):
@@ -183,9 +187,12 @@ class Payment(models.Model):
 
 
 class Guarantor(models.Model):
+    creator = models.ForeignKey(User, on_delete=models.CASCADE, null=True, related_name='guarantors')
     uid = models.BigAutoField(primary_key=True, unique=True, editable=False)
+    
     name = models.CharField(max_length=100)  #required
     phone = models.CharField(max_length=14, help_text="Format: +880XXXXXXXXXX", blank=True, null=True)
+    address = models.CharField(max_length=500, blank=True, null=True)
     occupation = models.CharField(max_length=100, blank=True, null=True)
 
     def __str__(self):
@@ -200,25 +207,22 @@ class Guarantor(models.Model):
             if lastObj:
                 self.uid = lastObj.uid + 1
             else:
-                self.uid = 100001
+                self.uid = 5000001
         super().save(*args, **kwargs)
 
 
 
 class Account(models.Model):
-    STATUS_CHOICES = [
-        ('Active', 'Active'),
-        ('Closed', 'Closed'),
-    ]
+    creator = models.ForeignKey(User, on_delete=models.CASCADE, related_name='accounts')
     number = models.CharField(max_length=10, unique=True, primary_key=True)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='accounts')
+
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='accounts')
     guarantors = models.ManyToManyField(Guarantor, related_name='accounts')
     product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True)
     contract = models.OneToOneField(Contract, on_delete=models.SET_NULL, null=True, related_name='account')
 
-    saleDate = models.DateField(auto_now_add=True)
-    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='Active')
+    saleDate = models.DateField()
+    status = models.CharField(max_length=10, choices=ACCOUNT_STATUSES, default='Active')
 
     def __str__(self):
         return self.customer.name
