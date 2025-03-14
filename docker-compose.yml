@@ -20,19 +20,15 @@ services:
     image: cms_web:latest
     command: >
       sh -c "
-      python manage.py makemigrations &&
-      python manage.py migrate &&
       python manage.py collectstatic --no-input &&
-      gunicorn -b 0.0.0.0 -p 8000 core.wsgi:application
+      gunicorn --bind 0.0.0.0:8000 core.wsgi:application
       "
-    volumes:
-      - .:/app
-    restart: unless-stopped
     environment:
       - DEBUG=False
-      - HOST=
-      - DJANGO_SECRET_KEY=
-      - DATABASE_URL=
+      - DATABASE_URL=postgres://cms_user:KsNj237&Y87#T_123@cms_postgres:5432/cms_db
+    volumes:
+      - ./static:/app/static
+      - ./media:/app/media
     depends_on:
       - cms_postgres
     expose:
@@ -48,7 +44,7 @@ services:
       - ./static:/app/static
       - ./media:/app/media
     ports:
-      - "80:8080"
+      - "8080:80"  # Map host port 8080 to container port 80
     depends_on:
       - cms_web
     restart: unless-stopped

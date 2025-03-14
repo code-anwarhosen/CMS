@@ -1,11 +1,23 @@
-import os
+import os, environ
 from pathlib import Path
-
 BASE_DIR = Path(__file__).resolve().parent.parent
-SECRET_KEY = 'django-insecure-q7le0rz@@^rj_+pst2wm3=3beh7_3jow@apsn7wwm!fsp4k1kb'
 
-DEBUG = True
-ALLOWED_HOSTS = ['*']
+env = environ.Env()
+environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
+
+DEBUG = env.bool('DEBUG', default=False)
+SECRET_KEY = env('DJANGO_SECRET_KEY')
+
+ALLOWED_HOSTS = [
+    '127.0.0.1',
+    'localhost',
+    env('HOST')
+]
+
+CSRF_TRUSTED_ORIGINS = []
+if not DEBUG:
+    CSRF_TRUSTED_ORIGINS.append(f'http://{env('HOST')}')
+    CSRF_TRUSTED_ORIGINS.append(f'https://{env('HOST')}')
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -49,10 +61,7 @@ TEMPLATES = [
 WSGI_APPLICATION = 'core.wsgi.application'
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    'default': env.db('DATABASE_URL')
 }
 
 AUTH_PASSWORD_VALIDATORS = [
