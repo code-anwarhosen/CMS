@@ -22,12 +22,12 @@
 
                 <div>
                     <label class="block mb-2">Account Number</label>
-                    <input type="text" id="accountNumber" placeholder="Example: DKC-H1" class="w-full bg-gray-700 rounded p-2 focus:ring-1 focus:ring-blue-500 outline-none border-b border-gray-300">
+                    <input type="text" id="accountNumber" required placeholder="Example: DKC-H1" class="w-full bg-gray-700 rounded p-2 focus:ring-1 focus:ring-blue-500 outline-none border-b border-gray-300">
                 </div>
 
                 <div>
                     <label class="block mb-2">Sale Date</label>
-                    <input type="date" id="saleDate" class="w-full bg-gray-700 rounded p-2 focus:ring-1 focus:ring-blue-500 outline-none border-b border-gray-300">
+                    <input type="date" id="saleDate" required class="w-full bg-gray-700 rounded p-2 focus:ring-1 focus:ring-blue-500 outline-none border-b border-gray-300">
                     <script>
                         const saleDateinput = document.getElementById('saleDate');
                         const today = new Date().toLocaleDateString('en-CA'); // 'en-CA' gives YYYY-MM-DD format
@@ -59,7 +59,7 @@
             <!-- Customer UID Input -->
             <div class="mb-4">
                 <label class="block mb-2">Customer UID</label>
-                <input type="text" id="customerUid" 
+                <input type="text" id="customerUid" required
                        class="w-full bg-gray-700 rounded p-2 focus:ring-1 focus:ring-blue-500 outline-none border-b border-gray-300"
                        onblur="fetchCustomerDetails(this.value)">
             </div>
@@ -89,7 +89,7 @@
                         <button onclick="openFindModal('firstGuarantor')" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded">
                             Find Guarantor
                         </button>
-                        <button onclick="openCreateGuarantorModal()" class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded">
+                        <button onclick="openCreateGuarantorModal(type='first')" class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded">
                             Create New
                         </button>
                     </div>
@@ -98,7 +98,7 @@
                 <!-- First Guarantor UID Input -->
                 <div class="mb-4">
                     <label class="block mb-2">First Guarantor UID</label>
-                    <input type="text" id="firstGuarantorUid" 
+                    <input type="text" id="firstGuarantorUid" required
                            class="w-full bg-gray-700 rounded p-2 focus:ring-1 focus:ring-blue-500 outline-none border-b border-gray-300"
                            onblur="fetchGuarantorDetails(this.value, 'first')">
                 </div>
@@ -122,7 +122,7 @@
                         <button onclick="openFindModal('secondGuarantor')" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded">
                             Find Guarantor
                         </button>
-                        <button onclick="openCreateGuarantorModal()" class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded">
+                        <button onclick="openCreateGuarantorModal(type='second')" class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded">
                             Create New
                         </button>
                     </div>
@@ -131,7 +131,7 @@
                 <!-- Second Guarantor UID Input -->
                 <div class="mb-4">
                     <label class="block mb-2">Second Guarantor UID</label>
-                    <input type="text" id="secondGuarantorUid" 
+                    <input type="text" id="secondGuarantorUid" required
                            class="w-full bg-gray-700 rounded p-2 focus:ring-1 focus:ring-blue-500 outline-none border-b border-gray-300"
                            onblur="fetchGuarantorDetails(this.value, 'second')">
                 </div>
@@ -159,7 +159,7 @@
                 <!-- Product Category Dropdown -->
                 <div>
                     <label class="block mb-2">Product Category</label>
-                    <select id="productCategory" class="w-full bg-gray-700 rounded p-2 focus:ring-1 focus:ring-blue-500 outline-none border-b border-gray-300">
+                    <select id="productCategory" required class="w-full bg-gray-700 rounded p-2 focus:ring-1 focus:ring-blue-500 outline-none border-b border-gray-300">
                         <option value="">Select Category</option>
                     </select>
                 </div>
@@ -189,7 +189,7 @@
         <section class="bg-gray-800 p-6 rounded-lg shadow-lg">
             <h2 class="text-2xl font-bold border-b border-gray-700 pb-2">Contract Information</h2>
 
-            <div class="mt-4 grid grid-cols-2 gap-x-6 gap-y-4">
+            <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
                 <!-- Cash Value -->
                 <div>
                     <label class="block mb-2">Cash Value</label>
@@ -229,7 +229,8 @@
 
         <!-- Create Button -->
         <div class="flex justify-center">
-            <button onclick="submitForm()" class="bg-green-700 hover:bg-green-900 px-6 py-3 rounded text-lg font-semibold">
+            {% csrf_token %}
+            <button id="createAccountBtn" onclick="submitForm()" class="bg-green-700 hover:bg-green-900 px-6 py-3 rounded text-lg font-semibold">
                 Create Account
             </button>
         </div>
@@ -359,24 +360,26 @@
             </div>
             
             <form id="createGuarantorForm" onsubmit="handleCreateGuarantorSubmit(event)" class="modal-content overflow-y-auto p-4 space-y-4">
+                {% csrf_token %}
+                
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <label class="block mb-2">Full Name</label>
-                        <input type="text" required class="w-full bg-gray-700 rounded p-2 focus:ring-1 focus:ring-blue-500 outline-none border-b border-gray-300">
+                        <label class="block mb-2">Full Name *</label>
+                        <input type="text" name="guarantorName" required class="w-full bg-gray-700 rounded p-2 focus:ring-1 focus:ring-blue-500 outline-none border-b border-gray-300">
                     </div>
                     <div>
-                        <label class="block mb-2">Phone Number</label>
-                        <input type="tel" required class="w-full bg-gray-700 rounded p-2 focus:ring-1 focus:ring-blue-500 outline-none border-b border-gray-300">
+                        <label class="block mb-2">Phone Number *</label>
+                        <input type="tel" name="guarantorPhone" required class="w-full bg-gray-700 rounded p-2 focus:ring-1 focus:ring-blue-500 outline-none border-b border-gray-300">
                     </div>
 
                     <div>
                         <label class="block mb-2">Address</label>
-                        <input class="w-full bg-gray-700 rounded p-2 focus:ring-1 focus:ring-blue-500 outline-none border-b border-gray-300">
+                        <input name="guarantorAddress" class="w-full bg-gray-700 rounded p-2 focus:ring-1 focus:ring-blue-500 outline-none border-b border-gray-300">
                     </div>
 
                     <div>
                         <label class="block mb-2">Occupation</label>
-                        <select class="w-full bg-gray-700 rounded p-2 focus:ring-1 focus:ring-blue-500 outline-none border-b border-gray-300">
+                        <select name="guarantorOccupation" class="w-full bg-gray-700 rounded p-2 focus:ring-1 focus:ring-blue-500 outline-none border-b border-gray-300">
                             <option value="">Select Occupation</option>
 
                             {% for occupation in occupationOptions %}  
@@ -385,6 +388,7 @@
                         </select>
                     </div>
                 </div>
+                
                 <div class="flex justify-end space-x-2">
                     <button type="button" onclick="closeCreateGuarantorModal()" class="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded">
                         Cancel

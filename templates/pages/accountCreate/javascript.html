@@ -7,6 +7,8 @@
         products: []
     };
 
+    let currentGuarantorType = null; // ( first or second )Tracks whether creating first or second guarantor
+
 
 
     // Fetch initial data from Django backend
@@ -90,10 +92,12 @@
 
 
     // Fetch customer details
-    async function fetchCustomerDetails(uid='', isNewCus=false, customer={}) {
+    async function fetchCustomerDetails(uid='', isNewCus=false, newCustomer={}) {
+        let customer = appData.customers.find(cust => cust.uid == uid);
 
-        if (isNewCus == false) { //means it called from find section
-            customer = appData.customers.find(cust => cust.uid == uid);
+        if (isNewCus) {
+            customer = newCustomer;
+            document.getElementById('customerUid').value = customer.uid;
         }
 
         if (customer) {
@@ -218,21 +222,23 @@
         document.getElementById('createCustomerModal').classList.remove('open');
     }
 
-    function openCreateGuarantorModal() {
+    function openCreateGuarantorModal(type='') {
+        currentGuarantorType = type;
         document.getElementById('createGuarantorModal').classList.add('open');
     }
 
     function closeCreateGuarantorModal() {
         document.getElementById('createGuarantorModal').classList.remove('open');
+        currentGuarantorType = null;
     }
 
 
     
 
-    // Customer creation form submit 
-    function handleCreateCustomerSubmit(event) {
+    // Handle Create Customer Form Submission
+    async function handleCreateCustomerSubmit(event) {
         event.preventDefault(); // Prevent the default form submission
-    
+
         // Gather form data
         const formData = new FormData(event.target);
         const data = {};
@@ -240,42 +246,139 @@
         formData.forEach((value, key) => {
             data[key] = value;
         });
-    
 
-        // Make a POST request to the server
-        fetch('/customer/create/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': data.csrfmiddlewaretoken,
-            },
-            body: JSON.stringify(data)
-        })
-        .then(response => {
+        // Add loading state (optional)
+        const submitButton = event.target.querySelector('button[type="submit"]');
+        submitButton.disabled = true;
+        submitButton.innerHTML = 'Creating...'; // Add a spinner or loading text
+
+        try {
+            // Make a POST request to the server
+            const response = await fetch('/customer/create/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': data.csrfmiddlewaretoken,
+                },
+                body: JSON.stringify(data),
+            });
+
             if (!response.ok) {
-                showToast("Something went wrong!");
                 throw new Error('Network response was not ok');
             }
-            return response.json();
-        })
-        .then(data => {
-            showToast(data.message);
-            if (data.status == 'success') {
-                fetchCustomerDetails(uid="", isNewCus=true, customer=data.customer);
+
+            const result = await response.json();
+
+            if (result.status === 'success') {
+                showToast(result.message);
+
+                // Update the UI with the new customer
+                const newCustomer = result.customer;
+                appData.customers.push(newCustomer);
+
+                // Close the modal
                 closeCreateCustomerModal();
+
+                // Fetch and display customer details
+                fetchCustomerDetails("", true, newCustomer);
+            } else {
+                throw new Error(result.message || 'Failed to create customer');
             }
-        })
-        .catch(error => {
+        } catch (error) {
             console.error('Error:', error);
-            showToast(error);
-        });
+            showToast(error.message || 'An error occurred while creating the customer.');
+        } finally {
+            // Reset loading state
+            if (submitButton) {
+                submitButton.disabled = false;
+                submitButton.innerHTML = 'Create';
+            }
+        }
     }
-    
+
+
+
+    // Handle Create Guarantor Form Submission
+    async function handleCreateGuarantorSubmit(event) {
+        event.preventDefault(); // Prevent the default form submission
+
+        if (!currentGuarantorType) {
+            alert('Guarantor type not specified!');
+            return;
+        }
+
+        // Gather form data
+        const formData = new FormData(event.target);
+        const data = {};
+
+        formData.forEach((value, key) => {
+            data[key] = value;
+        });
+
+        // Add loading state (optional)
+        const submitButton = event.target.querySelector('button[type="submit"]');
+        submitButton.disabled = true;
+        submitButton.innerHTML = 'Creating...'; // Add a spinner or loading text
+
+        try {
+            // Make a POST request to the server
+            const response = await fetch('/guarantor/create/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': data.csrfmiddlewaretoken,
+                },
+                body: JSON.stringify(data),
+            });
+
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+
+            const result = await response.json();
+
+            if (result.status === 'success') {
+                showToast(result.message);
+
+                // Update the UI with the new guarantor
+                const newGuarantor = result.guarantor;
+                appData.guarantors.push(newGuarantor);
+
+                if (currentGuarantorType === 'first') {
+                    document.getElementById('firstGuarantorUid').value = newGuarantor.uid;
+                    fetchGuarantorDetails(newGuarantor.uid, 'first');
+                } else if (currentGuarantorType === 'second') {
+                    document.getElementById('secondGuarantorUid').value = newGuarantor.uid;
+                    fetchGuarantorDetails(newGuarantor.uid, 'second');
+                }
+
+                closeCreateGuarantorModal();
+            } else {
+                throw new Error(result.message || 'Failed to create guarantor');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            showToast(error.message || 'An error occurred while creating the guarantor.');
+        } finally {
+            // Reset loading state
+            if (submitButton) {
+                submitButton.disabled = false;
+                submitButton.innerHTML = 'Create';
+            }
+        }
+    }
+
 
 
 
     // Submit Form
-    function submitForm() {
+    async function submitForm() {
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value;
+        if (!csrfToken) {
+            console.error('CSRF token not found!');
+            return;
+        }
+
         const formData = {
             accountNumber: document.querySelector('#accountNumber').value,
             saleDate: document.querySelector('#saleDate').value,
@@ -286,7 +389,7 @@
 
             productCategory: document.querySelector('#productCategory').value,
             selectedModel: document.querySelector('#selectedModelName').textContent,
-
+            
             cashValue: document.querySelector('#cashValue').value,
             hireValue: document.querySelector('#hireValue').value,
             downPayment: document.querySelector('#downPayment').value,
@@ -294,8 +397,45 @@
             length: document.querySelector('#length').value,
         };
 
-        console.log('Form Data:', formData); // Simulate form submission
-        alert('Form submitted successfully!');
+        // Add loading state (optional)
+        const submitButton = document.querySelector('#createAccountBtn');
+        submitButton.disabled = true;
+        submitButton.innerHTML = 'Submitting...'; // Add a spinner or loading text
+
+        try {
+            // Make a POST request to the server
+            const response = await fetch('/account/create/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken,
+                },
+                body: JSON.stringify(formData),
+            });
+
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+
+            const result = await response.json();
+
+            if (result.status === 'success') {
+                showToast(result.message || 'Account created successfully!');
+                console.log('Account created:', result.data); // Log the created account data
+                
+            } else {
+                throw new Error(result.message || 'Failed to create account');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            showToast(error.message || 'An error occurred while creating the account.');
+        } finally {
+            // Reset loading state
+            if (submitButton) {
+                submitButton.disabled = false;
+                submitButton.innerHTML = 'Create Account';
+            }
+        }
     }
 
 

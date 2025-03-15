@@ -22,7 +22,7 @@ overlay.addEventListener('click', () => {
 // <<===================== Navbar - END ===========================>>
 
 
-function showToast(message, duration = 3000) {
+function showToast(message, duration = 5000) {
     // Create a <style> element for the CSS
     const style = document.createElement('style');
     style.textContent = `

@@ -115,7 +115,7 @@ class Model(models.Model):
     
 class Product(models.Model):
     category = models.CharField(max_length=100, choices=PRODUCT_CATEGORIES)
-    model = models.ForeignKey(Model, on_delete=models.SET_NULL, null=True, blank=True)
+    model = models.OneToOneField(Model, on_delete=models.CASCADE, null=True, blank=True, related_name='product')
 
     def __str__(self):
         return f'{self.category} : {self.model}'
