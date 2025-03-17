@@ -24,7 +24,7 @@ services:
       gunicorn --bind 0.0.0.0:8000 core.wsgi:application
       "
     environment:
-      - DEBUG=True
+      - DEBUG=False
       - HOST=cms.anwarhosen.xyz
       - DJANGO_SECRET_KEY=django-insecure-q7le0rz@@^rj_+pst2wm3=3beh7_3jow@apsn7wwm!fsp4k1kb
       - DATABASE_URL=postgres://cms_user:KsNj237&Y87#T_123@cms_postgres:5432/cms_db
