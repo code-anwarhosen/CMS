@@ -1,0 +1,2 @@
+npx tailwindcss@3 init
+npx tailwindcss -i ./tailwind/src/input.css -o ./static/css/tailwind.css --watch

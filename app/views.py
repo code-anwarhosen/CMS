@@ -115,48 +115,64 @@ def CreateAccountForm(request):
 def GetPreCreationData(request):
     user = request.user
 
-    customers = user.customers.all()
-    serialized_customers = [{
-        'uid': cus.uid,
-        'name': cus.name,
-        'phone': cus.phone,
-        'address': cus.address,
-        'occupation': cus.occupation
-    } for cus in customers]
+    if request.method != 'GET':
+        return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=405)
+    
+    try:
+        # Fetch customers and serialize
+        customers = user.customers.all()
+        serialized_customers = [
+            {
+                'uid': customer.uid,
+                'name': customer.name,
+                'phone': customer.phone,
+                'address': customer.address,
+                'occupation': customer.occupation
+            }
+            for customer in customers
+        ]
 
+        # Fetch guarantors and serialize
+        guarantors = user.guarantors.all()
+        serialized_guarantors = [
+            {
+                'uid': guarantor.uid,
+                'name': guarantor.name,
+                'phone': guarantor.phone,
+                'address': guarantor.address,
+                'occupation': guarantor.occupation
+            }
+            for guarantor in guarantors
+        ]
 
-    guarantors = user.guarantors.all()
-    serialized_guarantors = [{
-        'uid': gua.uid,
-        'name': gua.name,
-        'phone': gua.phone,
-        'address': gua.address,
-        'occupation': gua.occupation
-    } for gua in guarantors]
+        # Prepare product categories
+        categories = [
+            {'value': category[0], 'name': category[1]}
+            for category in PRODUCT_CATEGORIES
+        ]
 
-    for customer in serialized_customers:
-        serialized_guarantors.append(customer)
+        # Fetch products and serialize
+        products = Product.objects.select_related('model').all()
+        serialized_products = [
+            {
+                'category': product.category,
+                'model': product.model.name
+            }
+            for product in products
+        ]
 
-    categories = [{
-        'value': cate[0],
-        'name': cate[1]
-    } for cate in PRODUCT_CATEGORIES]
+        # Prepare response data
+        data = {
+            'customers': serialized_customers,
+            'guarantors': serialized_guarantors,
+            'productCategories': categories,
+            'products': serialized_products,
+        }
 
-    products = Product.objects.all()
-    serialized_products = [{
-        'category': product.category,
-        'model': product.model.name
-    } for product in products]
+        return JsonResponse({'success': True, 'data': data})
 
-    data = {
-        'customers': serialized_customers,
-        'guarantors': serialized_guarantors,
-        'productCategories': categories,
-        'products': serialized_products,
-    }
-
-    return JsonResponse({'success': True, 'data': data})
-
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': 'An error occurred while fetching data.'}, status=500)
 
 
 
@@ -164,63 +180,89 @@ def GetPreCreationData(request):
 def CreateCustomer(request):
     user = request.user
 
-    if request.method == 'POST':
-        try:
-            # Parse JSON data from the request body
-            data = json.loads(request.body)
+    if request.method != 'POST':
+        return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=405)
 
-            # Extract data from the JSON payload
-            name = data.get('fullname')
-            phone = data.get('phone')
-            address = data.get('address')
+    try:
+        # Parse JSON data
+        data = json.loads(request.body)
 
-            # Validate required fields
-            if not name or not phone or not address:
-                return JsonResponse({'status': 'error', 'message': 'Full Name, Phone, and Address are required fields.'}, status=400)
+        # Extract fields
+        name = data.get('fullname')
+        phone = data.get('phone')
+        address = data.get('address')
 
-            customerObj = Customer.objects.filter(phone=phone).first()
-            if customerObj:
-                data = {
-                    'uid': customerObj.uid,
-                    'name': customerObj.name,
-                    'phone': customerObj.phone,
-                    'address': customerObj.address,
-                    'occupation': customerObj.occupation
-                }
-                return JsonResponse({'status': 'success', 'message': f'Customer already exists with this phone number. UID:{customerObj.uid}', 'customer': data}, status=201)
+        # Validate required fields
+        if not name or not phone or not address:
+            return JsonResponse({'status': 'error', 'message': 'Full Name, Phone, and Address are required fields.'}, status=400)
 
-            age = data.get('age')
-            occupation = data.get('occupation')
-            locationMark = data.get('locationMark')
-            guardianType = data.get('guardianType')
-            guardianName = data.get('guardianName')
-
-            # Create a new Customer instance
-            customer = Customer.objects.create(
-                creator=user, name=name, phone=phone, address=address,
-                occupation=occupation, locationMark=locationMark,
-                guardianType=guardianType, guardianName=guardianName
-            )
-            if age:
-                customer.age = int(age)
-            customer.save()
-
-            data = {
+        # Check if customer already exists with the given phone number
+        customer = Customer.objects.filter(phone=phone).first()
+        if customer:
+            response_data = {
                 'uid': customer.uid,
                 'name': customer.name,
                 'phone': customer.phone,
                 'address': customer.address,
                 'occupation': customer.occupation
             }
-            return JsonResponse({'status': 'success', 'message': 'Customer created successfully!', 'customer': data}, status=201)
+            return JsonResponse({
+                'status': 'success',
+                'message': f'Customer already exists with this phone number. UID: {customer.uid}',
+                'customer': response_data
+            }, status=200)
 
-        except Exception as e:
-            return JsonResponse({'status': 'error', 'message': 'An error occurred while creating the customer.'}, status=500)
+        # Extract optional fields
+        age = data.get('age')
+        occupation = data.get('occupation')
+        location_mark = data.get('locationMark')
+        guardian_type = data.get('guardianType')
+        guardian_name = data.get('guardianName')
 
-    else:
-        # Return an error for non-POST requests
-        return JsonResponse({'status': 'error', 'message': 'Invalid request method.'}, status=405)
+        # Create new customer
+        customer = Customer.objects.create(
+            creator=user,
+            name=name,
+            phone=phone,
+            address=address,
+            occupation=occupation,
+            locationMark=location_mark,
+            guardianType=guardian_type,
+            guardianName=guardian_name
+        )
 
+        # Set age if provided
+        if age:
+            customer.age = int(age)
+            customer.save()  # Save again to update age
+
+        # Prepare response data
+        response_data = {
+            'uid': customer.uid,
+            'name': customer.name,
+            'phone': customer.phone,
+            'address': customer.address,
+            'occupation': customer.occupation,
+            'age': customer.age,
+            'locationMark': customer.locationMark,
+            'guardianType': customer.guardianType,
+            'guardianName': customer.guardianName
+        }
+
+        return JsonResponse({
+            'status': 'success',
+            'message': 'Customer created successfully!',
+            'customer': response_data
+        }, status=201)
+
+    except json.JSONDecodeError:
+        return JsonResponse({'status': 'error', 'message': 'Invalid JSON data.'}, status=400)
+
+    except ValueError as e:
+        return JsonResponse({'status': 'error', 'message': 'Invalid value for age.'}, status=400)
+
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': 'An error occurred while creating the customer.'}, status=500)
 
 
 
@@ -228,51 +270,68 @@ def CreateCustomer(request):
 def CreateGuarantor(request):
     user = request.user
 
-    if request.method == 'POST':
-        try:
-            data = json.loads(request.body)
+    if request.method != 'POST':
+        return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=405)
 
-            name = data.get('guarantorName')
-            phone = data.get('guarantorPhone')
-            address = data.get('guarantorAddress')
-            occupation = data.get('guarantorOccupation')
+    try:
+        # Parse JSON data
+        data = json.loads(request.body)
 
-            # Validate required fields
-            if not name or not phone:
-                return JsonResponse({'status': 'error', 'message': 'Name and Phone are required fields.'}, status=400)
-            
-            # check if gurantor already with the given phone number
-            guarantorObj = Guarantor.objects.filter(phone=phone).first()
-            if guarantorObj:
-                data = {
-                    'uid': guarantorObj.uid,
-                    'name': guarantorObj.name,
-                    'phone': guarantorObj.phone,
-                    'address': guarantorObj.address,
-                    'occupation': guarantorObj.occupation
-                }
-                return JsonResponse({'status': 'success', 'message': f'Guarantor already exists with this phone number. UID:{guarantorObj.uid}', 'guarantor': data}, status=201)
+        # Extract fields
+        name = data.get('guarantorName')
+        phone = data.get('guarantorPhone')
+        address = data.get('guarantorAddress')
+        occupation = data.get('guarantorOccupation')
 
+        # Validate required fields
+        if not name or not phone:
+            return JsonResponse({'status': 'error', 'message': 'Name and Phone are required fields.'}, status=400)
 
-            # create new guarantor
-            guarantor = Guarantor.objects.create(creator=user, name=name, phone=phone, address=address, occupation=occupation)
-            guarantor.save()
-
-            data = {
+        # Check if guarantor already exists with the given phone number
+        guarantor = Guarantor.objects.filter(phone=phone).first()
+        if guarantor:
+            response_data = {
                 'uid': guarantor.uid,
                 'name': guarantor.name,
                 'phone': guarantor.phone,
                 'address': guarantor.address,
                 'occupation': guarantor.occupation
             }
-            return JsonResponse({'status': 'success', 'message': 'Guarantor created successfully!', 'guarantor': data})
-        
-        except Exception as e:
-            return JsonResponse({'status': 'error', 'message': 'An error occurred while creating the guarantor.'}, status=500)
+            return JsonResponse({
+                'status': 'success',
+                'message': f'Guarantor already exists with this phone number. UID: {guarantor.uid}',
+                'guarantor': response_data
+            }, status=200)
 
-    else:
-        # Return an error for non-POST requests
-        return JsonResponse({'status': 'error', 'message': 'Invalid request method.'}, status=405)
+        # Create new guarantor
+        guarantor = Guarantor.objects.create(
+            creator=user,
+            name=name,
+            phone=phone,
+            address=address,
+            occupation=occupation
+        )
+
+        # Prepare response data
+        response_data = {
+            'uid': guarantor.uid,
+            'name': guarantor.name,
+            'phone': guarantor.phone,
+            'address': guarantor.address,
+            'occupation': guarantor.occupation
+        }
+
+        return JsonResponse({
+            'status': 'success',
+            'message': 'Guarantor created successfully!',
+            'guarantor': response_data
+        }, status=201)
+
+    except json.JSONDecodeError:
+        return JsonResponse({'status': 'error', 'message': 'Invalid JSON data.'}, status=400)
+
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': 'An error occurred while creating the guarantor.'}, status=500)
 
 
 
@@ -280,92 +339,79 @@ def CreateGuarantor(request):
 def CreateAccount(request):
     user = request.user
 
-    if request.method == 'POST':
+    if request.method != 'POST':
+        return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=405)
+
+    try:
+        data = json.loads(request.body)
+        
+        # Validate required fields
+        required_fields = ['accountNumber', 'customerUid', 'selectedModel', 'firstGuarantorUid', 
+            'secondGuarantorUid', 'cashValue', 'hireValue', 'downPayment', 'monthlyPayment', 'length', 'saleDate']
+        for field in required_fields:
+            if field not in data or not data[field]:
+                return JsonResponse({'status': 'error', 'message': f'"{field}" is required.'}, status=400)
+
+        account_number = data['accountNumber']
+        customer_uid = data['customerUid']
+        selected_model = data['selectedModel']
+        first_guarantor_uid = data['firstGuarantorUid']
+        second_guarantor_uid = data['secondGuarantorUid']
+
+        # Check if account already exists
+        if Account.objects.filter(number=account_number).exists():
+            return JsonResponse({'status': 'error', 'message': f'An account already exists with this "{account_number}" account number.'}, status=400)
+
+        # Check for customer
+        customer = Customer.objects.filter(uid=customer_uid).first()
+        if not customer:
+            return JsonResponse({'status': 'error', 'message': f'Customer with UID {customer_uid} does not exist.'}, status=404)
+
+        # Check for product
+        product_model = Model.objects.filter(name=selected_model).first()
+        if not product_model or not product_model.product:
+            return JsonResponse({'status': 'error', 'message': 'There is no product associated with the selected model.'}, status=400)
+        product = product_model.product
+
+        # Check for guarantors
+        first_guarantor = Guarantor.objects.filter(uid=first_guarantor_uid).first()
+        second_guarantor = Guarantor.objects.filter(uid=second_guarantor_uid).first()
+
+        if not first_guarantor or not second_guarantor:
+            return JsonResponse({'status': 'error', 'message': f'Guarantors with UID {first_guarantor_uid} or {second_guarantor_uid} do not exist.'}, status=404)
+
+        # Create account
+        account = Account.objects.create(
+            creator=user,
+            number=account_number,
+            saleDate=data['saleDate'],
+            customer=customer,
+            product=product
+        )
+        account.guarantors.add(first_guarantor, second_guarantor)
+
+        # Create contract
         try:
-            data = json.loads(request.body)
-            print(1)
-
-            print(data)
-
-            # Validate required fields
-            required_fields = [
-                'accountNumber', 'saleDate', 'customerUid', 
-                'firstGuarantorUid', 'secondGuarantorUid', 'selectedModel',
-                'cashValue', 'hireValue', 'downPayment', 'monthlyPayment', 'length'
-
-            ]
-
-            print(2)
-            # for field in required_fields:
-            #     if field not in data or not data[field]:
-            #         return JsonResponse({'status': 'error', 'message': f'{field} is required.'}, status=400)
-            
-            print(22)
-            # check if account already exists
-            accountNumber = data.get('accountNumber')
-            account = Account.objects.filter(number=accountNumber).first()
-            if account:
-                return JsonResponse({'status': 'success', 'message': f'An account already exists with this {accountNumber}'})
-            
-            print(3)
-
-            #Check for customer
-            customerUid = data.get('customerUid')
-            customer = Customer.objects.filter(uid=customerUid).first()
-            if not customer:
-                return JsonResponse({'status': 'error', 'message': f'There is no customer with UID: {customerUid}'}, status=400)
-            
-            print(4)
-
-            #check for product
-            product = None
-            selectedModel = data.get('selectedModel')
-            productModel = Model.objects.filter(name=selectedModel).first()
-            if productModel:
-                product = productModel.product
-            if not productModel or not product:
-                return JsonResponse({'status': 'error', 'message': f'There is no product with the selected model.'}, status=400)
-            
-            print(5)
-
-            # Check for guarantors
-            first_guarantor_uid = data.get('firstGuarantorUid')
-            second_guarantor_uid = data.get('secondGuarantorUid')
-
-            print(6)
-            firstGuarantor = Guarantor.objects.filter(uid=first_guarantor_uid).first()
-            secondGuarantor = Guarantor.objects.filter(uid=second_guarantor_uid).first()
-            print(66)
-            if not firstGuarantor or not secondGuarantor:
-                return JsonResponse({'status': 'error', 'message': f'There is no guarantor with UID: {firstGuarantor} or UID: {second_guarantor_uid}'}, status=400)
-            
-            print(666)
-
-            account = Account.objects.create(
-                creator=user,
-                number=accountNumber,
-                saleDate=data.get('saleDate'),
-                customer=customer, product=product
+            contract = Contract.objects.create(
+                cashValue=int(data['cashValue']),
+                hireValue=int(data['hireValue']),
+                downPayment=int(data['downPayment']),
+                monthlyPayment=int(data['monthlyPayment']),
+                length=int(data['length'])
             )
-            print(7)
-            account.guarantors.add(firstGuarantor)
-            account.guarantors.add(secondGuarantor)
-
-            # contract = Contract.objects.create(
-            #     cashValue=data['cashValue'], hireValue=data['hireValue'],
-            #     downPayment=data['downPayment'], monthlyPayment=data['monthlyPayment'], length=data['length']
-            # )
-            # account.contract = contract
+            account.contract = contract
             account.save()
-            print(8)
-            
-            return JsonResponse({
-                'status': 'success', 'message': 'Account created successfully!',
-                'data': {
-                    'accountNumber': account.number,
-                }
-            })
         except Exception as e:
-            print(e)
-            return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
-    return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=405)
+            return JsonResponse({'status': 'success', 'message': 'Account created successfully, but there might be issues with the contract information.'})
+
+        return JsonResponse({
+            'status': 'success', 
+            'message': 'Account created successfully!', 
+            'data': {'accountNumber': account.number
+        }})
+
+    except json.JSONDecodeError:
+        return JsonResponse({'status': 'error', 'message': 'Invalid JSON data.'}, status=400)
+    except Exception as e:
+        print('error', e)
+        return JsonResponse({'status': 'error', 'message': 'An unexpected error occurred.'}, status=500)

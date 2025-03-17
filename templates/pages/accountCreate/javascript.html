@@ -263,14 +263,14 @@
                 body: JSON.stringify(data),
             });
 
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
+            // if (!response.ok) {
+            //     throw new Error('Network response was not ok');
+            // }
 
             const result = await response.json();
 
             if (result.status === 'success') {
-                showToast(result.message);
+                showToast("Success: " + result.message);
 
                 // Update the UI with the new customer
                 const newCustomer = result.customer;
@@ -281,6 +281,9 @@
 
                 // Fetch and display customer details
                 fetchCustomerDetails("", true, newCustomer);
+
+            } else if (result.status === 'error') {
+                showToast("Error: " + result.message);
             } else {
                 throw new Error(result.message || 'Failed to create customer');
             }
@@ -331,14 +334,14 @@
                 body: JSON.stringify(data),
             });
 
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
+            // if (!response.ok) {
+            //     throw new Error('Network response was not ok');
+            // }
 
             const result = await response.json();
 
             if (result.status === 'success') {
-                showToast(result.message);
+                showToast("Success: " + result.message);
 
                 // Update the UI with the new guarantor
                 const newGuarantor = result.guarantor;
@@ -353,6 +356,10 @@
                 }
 
                 closeCreateGuarantorModal();
+
+            } else if (result.status === 'error') {
+                showToast("Error: " + result.message);
+
             } else {
                 throw new Error(result.message || 'Failed to create guarantor');
             }
@@ -397,6 +404,14 @@
             length: document.querySelector('#length').value,
         };
 
+        // Validate form data
+        for (const [key, value] of Object.entries(formData)) {
+            if (!value) {
+                showToast(`Please fill in the "${key}" field.`);
+                return;
+            }
+        }
+
         // Add loading state (optional)
         const submitButton = document.querySelector('#createAccountBtn');
         submitButton.disabled = true;
@@ -413,22 +428,31 @@
                 body: JSON.stringify(formData),
             });
 
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
+
+            // if (!response.ok) {
+            //     throw new Error('Network response was not ok');
+            // }
 
             const result = await response.json();
 
             if (result.status === 'success') {
-                showToast(result.message || 'Account created successfully!');
-                console.log('Account created:', result.data); // Log the created account data
+                showToast("Success: " + result.message || 'Account created successfully!');
+                console.log("Success: " + result.message || 'Account created successfully!');
                 
+                setTimeout(() => {
+                    window.location.href = '/';
+                }, 2000);
+                
+            } else if (result.status === 'error') {
+                showToast("Error: " + result.message);
+
             } else {
                 throw new Error(result.message || 'Failed to create account');
             }
         } catch (error) {
             console.error('Error:', error);
             showToast(error.message || 'An error occurred while creating the account.');
+
         } finally {
             // Reset loading state
             if (submitButton) {
