@@ -24,18 +24,31 @@ overlay.addEventListener('click', () => {
 
 // Close alert message
 function closeMessage(element) {
+    // Find the closest .floating-message element or use the element itself
     const messageElement = element.closest('.floating-message') || element;
+    
+    // Add a class to trigger a hide animation
     messageElement.classList.add('hide');
+    
+    // Remove the element from the DOM after the animation ends
     messageElement.addEventListener('animationend', () => {
         messageElement.remove();
-    });
-    }
+    }, { once: true }); // Use { once: true } to ensure the event listener is removed after execution
+}
 
-    // Auto-dismiss messages after 5 seconds
-    document.querySelectorAll('.floating-message').forEach(message => {
+// Auto-dismiss messages after 3 seconds (3000 milliseconds)
+document.querySelectorAll('.floating-message').forEach(message => {
     setTimeout(() => {
         closeMessage(message);
     }, 3000);
+});
+
+// Add click event listeners to all close buttons (elements with class .alert-cross)
+const crosses = document.querySelectorAll(".alert-cross");
+crosses.forEach(cross => {
+    cross.addEventListener('click', () => {
+        closeMessage(cross);
+    });
 });
 // <<===================== alert msg - END ===========================>>
 
