@@ -11,9 +11,9 @@
     <!-- <script src="https://cdn.tailwindcss.com"></script> -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    {% block css %}{% endblock css %}
     <link rel="stylesheet" href="{% static 'css/tailwind.css' %}">
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    {% block css %}{% endblock css %}
 
 </head>
 <body class="bg-gray-900">
@@ -25,8 +25,8 @@
     <!-- Main Content -->
     {% block content %}{% endblock content %}
 
-    <script src="{% static 'js/script.js' %}"></script>
-    {% block javascript %}{% endblock javascript %}
 
+    <script src="{% static 'js/script.js' %}"></script>
+    {% block js %}{% endblock js %}
 </body>
 </html>

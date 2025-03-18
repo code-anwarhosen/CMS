@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block title %}Account Details{% endblock title %}
 
@@ -232,24 +233,6 @@
 {% endblock content %}
 
 
-{% block javascript %}
-<script>
-    // Function to toggle sections
-    function toggleSection(sectionId) {
-        const section = document.getElementById(sectionId);
-        const icon = document.getElementById(`${sectionId}Icon`);
-
-        section.classList.toggle('hidden');
-        icon.classList.toggle('fa-plus');
-        icon.classList.toggle('fa-minus');
-    }
-
-    // Optional: Open all sections by default on page load
-    window.addEventListener('load', () => {
-        const sections = ['customerInfo', 'guarantorDetails', 'contractTerms', 'productDetails', 'paymentSchedule'];
-        sections.forEach(sectionId => {
-            toggleSection(sectionId); // Open all sections
-        });
-    });
-</script>
-{% endblock javascript %}
+{% block js %}
+    <script src="{% static 'js/accDetailsPageJs.js' %}"></script>
+{% endblock js %}

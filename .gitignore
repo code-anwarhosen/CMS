@@ -4,3 +4,5 @@ app/__pycache__
 app/migrations
 
 core/__pycache__
+
+static/admin

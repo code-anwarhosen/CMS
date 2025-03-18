@@ -1,14 +1,12 @@
 {% extends "base.html" %}
-
+{% load static %}
 
 {% block title %}Create New Account{% endblock title %}Create New Account
 
 
 {% block css %}
-    {% include "pages/accountCreate/css.html" %}
+    <link rel="stylesheet" href="{% static 'css/accCreatePage.css' %}">
 {% endblock css %}
-
-
 
 {% block content %}
 <main class="bg-gray-900 text-gray-100 min-h-screen p-6">
@@ -404,6 +402,6 @@
 {% endblock content %}
 
 
-{% block javascript %}
-    {% include "pages/accountCreate/javascript.html" %}
-{% endblock javascript %}
+{% block js %}
+    <script src="{% static 'js/accCreatePageJs.js' %}"></script>
+{% endblock js %}

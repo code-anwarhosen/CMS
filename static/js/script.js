@@ -22,6 +22,24 @@ overlay.addEventListener('click', () => {
 // <<===================== Navbar - END ===========================>>
 
 
+// Close alert message
+function closeMessage(element) {
+    const messageElement = element.closest('.floating-message') || element;
+    messageElement.classList.add('hide');
+    messageElement.addEventListener('animationend', () => {
+        messageElement.remove();
+    });
+    }
+
+    // Auto-dismiss messages after 5 seconds
+    document.querySelectorAll('.floating-message').forEach(message => {
+    setTimeout(() => {
+        closeMessage(message);
+    }, 3000);
+});
+// <<===================== alert msg - END ===========================>>
+
+
 function showToast(message, duration = 5000) {
     // Create a <style> element for the CSS
     const style = document.createElement('style');

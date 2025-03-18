@@ -746,10 +746,6 @@ video {
   height: 10rem;
 }
 
-.h-\[50px\] {
-  height: 50px;
-}
-
 .h-\[55px\] {
   height: 55px;
 }
@@ -1357,11 +1353,6 @@ video {
 .outline-none {
   outline: 2px solid transparent;
   outline-offset: 2px;
-}
-
-.invert {
-  --tw-invert: invert(100%);
-  filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
 }
 
 .filter {

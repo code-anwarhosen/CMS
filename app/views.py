@@ -106,7 +106,7 @@ def CreateAccountForm(request):
     context = {
         'occupationOptions': occupationOptions
     }
-    return render(request, 'pages/accountCreate/accountCreationForm.html', context)
+    return render(request, 'pages/accountCreationForm.html', context)
 
 
 
