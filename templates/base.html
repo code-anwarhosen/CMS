@@ -20,7 +20,6 @@
 <body class="bg-gray-900">
 
     {% include "components/navbar.html" %}
-    {% include "components/alert.html" %}
 
     <!-- Main Content -->
     {% block content %}{% endblock content %}
@@ -28,6 +27,23 @@
 
     <script src="{% static 'js/script.js' %}"></script>
     {% block js %}{% endblock js %}
-</body>3
 
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Fetch messages from Django's messages framework
+            const messages = [
+                {% for message in messages %}
+                    "{{ message }}",
+                {% endfor %}
+            ];
+    
+            // Display each message
+            messages.forEach(message => {
+                showToast(message);
+            });
+        });
+    </script>
+</body>
 </html>

@@ -1,4 +1,3 @@
-
 // Mobile Menu Toggle - navbar
 const mobileMenuButton = document.getElementById('mobileMenuButton');
 const closeMobileMenu = document.getElementById('closeMobileMenu');
@@ -22,36 +21,6 @@ overlay.addEventListener('click', () => {
 // <<===================== Navbar - END ===========================>>
 
 
-// Close alert message
-function closeMessage(element) {
-    // Find the closest .floating-message element or use the element itself
-    const messageElement = element.closest('.floating-message') || element;
-    
-    // Add a class to trigger a hide animation
-    messageElement.classList.add('hide');
-    
-    // Remove the element from the DOM after the animation ends
-    messageElement.addEventListener('animationend', () => {
-        messageElement.remove();
-    }, { once: true }); // Use { once: true } to ensure the event listener is removed after execution
-}
-
-// Auto-dismiss messages after 3 seconds (3000 milliseconds)
-document.querySelectorAll('.floating-message').forEach(message => {
-    setTimeout(() => {
-        closeMessage(message);
-    }, 3000);
-});
-
-// Add click event listeners to all close buttons (elements with class .alert-cross)
-const crosses = document.querySelectorAll(".alert-cross");
-crosses.forEach(cross => {
-    cross.addEventListener('click', () => {
-        closeMessage(cross);
-    });
-});
-// <<===================== alert msg - END ===========================>>
-
 
 function showToast(message, duration = 5000) {
     // Create a <style> element for the CSS
@@ -59,26 +28,26 @@ function showToast(message, duration = 5000) {
     style.textContent = `
         .toast-message {
             position: fixed;
-            top: 55%; /* Start slightly below the center */
+            top: 25%; /* Start slightly above the center */
             left: 50%;
             transform: translate(-50%, -50%);
-            background-color: rgba(0, 0, 0, 0.9);
+            background-color: rgba(0, 0, 0, 0.8);
             color: white;
             padding: 12px 24px;
             border-radius: 5px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 4px 8px rgba(50, 50, 50, 0.5);
             z-index: 1000;
             opacity: 0; /* Start invisible */
             transition: opacity 0.5s ease-in-out, top 0.5s ease-in-out;
         }
 
         .toast-message.show {
-            top: 50%; /* Move to the exact center */
+            top: 20%; /* Move to the exact center */
             opacity: 1; /* Fully visible */
         }
 
         .toast-message.hide {
-            top: 45%; /* Move slightly above the center */
+            top: 15%; /* Move slightly above the center */
             opacity: 0; /* Fully invisible */
         }
     `;
