@@ -263,7 +263,7 @@
 
 
 <!-- New Payment Modal -->
-<div id="paymentModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 items-center justify-center backdrop-blur-sm">
+<div id="paymentModal" class="fixed z-50 hidden items-center justify-center inset-0 bg-black bg-opacity-50 backdrop-blur-sm">
     <div class="bg-gray-800 rounded-xl w-full max-w-lg mx-4 transform transition-all duration-300">
         
         <!-- Header -->
@@ -279,18 +279,36 @@
         </div>
 
         <!-- Body -->
-        <div class="p-6">
-            <!-- Add your content here -->
+        <div class="px-2 py-1 text-gray-100">
+            <form id="newPaymentForm" class="modal-content overflow-y-auto p-4 space-y-4">
+                {% csrf_token %}
+                
+                <div class="grid grid-cols-1 gap-4">
+                    <div>
+                        <label class="block mb-2">Amount *</label>
+                        <input type="number" id="paymentAmount" required class="w-full bg-gray-700 rounded p-2 focus:ring-1 focus:ring-blue-500 outline-none">
+                    </div>
+                    <div>
+                        <label class="block mb-2">Receipt Number</label>
+                        <input type="text" id="receiptNumber" class="w-full bg-gray-700 rounded p-2 focus:ring-1 focus:ring-blue-500 outline-none">
+                    </div>
+
+                    <div>
+                        <label class="block mb-2">Payment Date *</label>
+                        <input type="date" id="paymentDate" required class="w-full bg-gray-700 rounded p-2 focus:ring-1 focus:ring-blue-500 outline-none">
+                    </div>
+                </div>
+            </form>
         </div>
 
         <!-- Footer -->
-        <div class="p-6 border-t border-gray-700">
+        <div class="p-6">
             <div class="flex justify-end space-x-3">
                 <button type="button" id="cancelModal" class="px-4 py-2 text-gray-300 hover:text-white hover:bg-gray-700 rounded-lg transition-colors">
                     Cancel
                 </button>
-                <button type="submit" class="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors">
-                    Save
+                <button id="paymentSubmitBtn" type="submit" class="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors">
+                    Create
                 </button>
             </div>
         </div>

@@ -1,3 +1,45 @@
+let AccDetilsDOM = {
+    newPaymentForm: document.getElementById('newPaymentForm'),
+
+    paymentAmount: document.getElementById('paymentAmount'),
+    receiptNumber: document.getElementById('receiptNumber'),
+    paymentDate: document.getElementById('paymentDate'),
+
+    paymentSubmitBtn: document.getElementById('paymentSubmitBtn'),
+}
+
+AccDetilsDOM.paymentSubmitBtn.addEventListener('click', () => {
+    createNewPayment();
+});
+
+// Submit Form
+async function createNewPayment() {
+    toggleModal(false);
+    
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value;
+    if (!csrfToken) {
+        console.error('CSRF token not found!');
+        return;
+    }
+
+    const formData = {
+        paymentAmount: AccDetilsDOM.paymentAmount.value,
+        receiptNumber: AccDetilsDOM.receiptNumber.value,
+        paymentDate: AccDetilsDOM.paymentDate.value,
+    }
+
+    console.log(formData);
+}
+
+
+
+// set default date in payment modal input
+const today = new Date().toLocaleDateString('en-CA'); // 'en-CA' gives YYYY-MM-DD format
+AccDetilsDOM.paymentDate.value = today;
+AccDetilsDOM.paymentDate.max = today;
+
+
+
 // Function to toggle sections
 function toggleSection(sectionId) {
     const section = document.getElementById(sectionId);
@@ -15,7 +57,6 @@ window.addEventListener('load', () => {
         toggleSection(sectionId); // Open all sections
     });
 });
-
 
 
 

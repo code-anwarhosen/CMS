@@ -87,6 +87,8 @@ async function fetchInitialData() {
     }
 }
 
+
+
 // Populate customer/guarantor list in find modal
 function populateCustomerGuarantorList(type) {
     try {
@@ -116,6 +118,9 @@ function populateCustomerGuarantorList(type) {
     }
 }
 
+
+
+
 // Handle customer/guarantor selection
 function handleCustomerGuarantorSelection(item, type) {
     if (type === 'customer') {
@@ -130,6 +135,9 @@ function handleCustomerGuarantorSelection(item, type) {
     }
     closeFindModal();
 }
+
+
+
 
 // Fetch customer details
 function fetchCustomerDetails(uid = '', isNewCus = false, newCustomer = {}) {
@@ -151,6 +159,9 @@ function fetchCustomerDetails(uid = '', isNewCus = false, newCustomer = {}) {
     }
 }
 
+
+
+
 // Fetch guarantor details
 function fetchGuarantorDetails(uid, type) {
     const detailsContainer = type === 'first' ? UIDOM.firstGuarantorDetails : UIDOM.secondGuarantorDetails;
@@ -166,6 +177,9 @@ function fetchGuarantorDetails(uid, type) {
         detailsContainer.classList.add('hidden');
     }
 }
+
+
+
 
 // Populate product models based on selected category
 function populateProductModels(category) {
@@ -184,10 +198,15 @@ function populateProductModels(category) {
     });
 }
 
+
+
+
+
 // Handle product category change
 UIDOM.productCategory.addEventListener('change', (e) => {
     populateProductModels(e.target.value);
 });
+
 
 // Handle search input in find modal
 UIDOM.searchInput.addEventListener('input', (e) => {
@@ -205,6 +224,8 @@ UIDOM.searchInput.addEventListener('input', (e) => {
     });
 });
 
+
+
 // Handle model filter input
 UIDOM.modelFilter.addEventListener('input', (e) => {
     const searchTerm = e.target.value.toLowerCase();
@@ -218,6 +239,8 @@ UIDOM.modelFilter.addEventListener('input', (e) => {
         }
     });
 });
+
+
 
 // Modal Handling
 function openFindModal(type) {
@@ -247,6 +270,9 @@ function closeCreateGuarantorModal() {
     UIDOM.createGuarantorModal.classList.remove('open');
     currentGuarantorType = null;
 }
+
+
+
 
 // Handle Create Customer Form Submission
 async function handleCreateCustomerSubmit(event) {
@@ -286,6 +312,9 @@ async function handleCreateCustomerSubmit(event) {
         submitButton.innerHTML = 'Create';
     }
 }
+
+
+
 
 // Handle Create Guarantor Form Submission
 async function handleCreateGuarantorSubmit(event) {
@@ -338,6 +367,9 @@ async function handleCreateGuarantorSubmit(event) {
         submitButton.innerHTML = 'Create';
     }
 }
+
+
+
 
 // Submit Form
 async function submitForm() {
@@ -409,6 +441,10 @@ window.onclick = function(event) {
         event.target.classList.remove('open');
     }
 };
+
+UIDOM.createAccountBtn.addEventListener('click', () => {
+    submitForm();
+});
 
 // Initialize data fetch when page loads
 document.addEventListener('DOMContentLoaded', () => {
