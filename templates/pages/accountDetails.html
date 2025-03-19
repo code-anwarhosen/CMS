@@ -3,6 +3,9 @@
 
 {% block title %}Account Details{% endblock title %}
 
+{% block css %}
+    <link rel="stylesheet" href="{% static 'css/accDetails.css' %}">
+{% endblock css %}
 
 {% block content %}
 <!-- Main Container -->
@@ -15,10 +18,14 @@
                 <h1 class="text-3xl font-bold tracking-wide text-blue-400">
                     DKCB
                 </h1>
-                <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                     <div>
                         <span class="text-gray-400">A/C:</span>
                         <span class="font-medium">{{ account.number }}</span>
+                    </div>
+                    <div>
+                        <span class="text-gray-400">Status:</span>
+                        <span class="font-medium">{{ account.status }}</span>
                     </div>
                     <div>
                         <span class="text-gray-400">Date of Sale:</span>
@@ -29,7 +36,7 @@
 
             <div>
                 <img src="{{ account.customer.avatar.url }}" 
-                 class="w-40 h-40 rounded-lg border-4 border-blue-400/20 shadow-lg">
+                 class="w-40 h-40 rounded-lg shadow-xl">
             </div>
         </div>
     </header>
@@ -38,10 +45,13 @@
 
     <!-- Customer Information Section -->
     <section class="bg-gray-800 rounded-xl shadow-lg">
-        <button onclick="toggleSection('customerInfo')" class="w-full p-6 text-left flex justify-between items-center">
+        <div class="w-full px-6 text-left flex justify-between items-center">
             <h2 class="text-xl font-semibold">Customer Details</h2>
-            <i id="customerInfoIcon" class="fas fa-plus text-gray-400"></i>
-        </button>
+
+            <button onclick="toggleSection('customerInfo')" class="p-6 transition-transform duration-500 hover:rotate-90 hover:scale-150 hover:font-bold">
+                <i id="customerInfoIcon" class="fas fa-plus text-gray-400"></i>
+            </button>
+        </div>
 
         <div id="customerInfo" class="px-6 pb-6 hidden">
             <div class="grid grid-cols-2 gap-6">
@@ -82,10 +92,13 @@
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <!-- Guarantor Details -->
         <section class="bg-gray-800 rounded-xl shadow-lg">
-            <button onclick="toggleSection('guarantorDetails')" class="w-full p-6 text-left flex justify-between items-center">
+            <div class="w-full px-6 text-left flex justify-between items-center">
                 <h2 class="text-xl font-semibold">Guarantor Details</h2>
-                <i id="guarantorDetailsIcon" class="fas fa-plus text-gray-400"></i>
-            </button>
+    
+                <button onclick="toggleSection('guarantorDetails')" class="p-6 transition-transform duration-500 hover:rotate-90 hover:scale-150 hover:font-bold">
+                    <i id="guarantorDetailsIcon" class="fas fa-plus text-gray-400"></i>
+                </button>
+            </div>
 
             <div id="guarantorDetails" class="px-6 pb-6 hidden">
                 <div class="grid grid-cols-2 gap-6">
@@ -136,10 +149,13 @@
 
         <!-- Contract Terms -->
         <section class="bg-gray-800 rounded-xl shadow-lg">
-            <button onclick="toggleSection('contractTerms')" class="w-full p-6 text-left flex justify-between items-center">
+            <div class="w-full px-6 text-left flex justify-between items-center">
                 <h2 class="text-xl font-semibold">Contract Terms</h2>
-                <i id="contractTermsIcon" class="fas fa-plus text-gray-400"></i>
-            </button>
+    
+                <button onclick="toggleSection('contractTerms')" class="p-6 transition-transform duration-500 hover:rotate-90 hover:scale-150 hover:font-bold">
+                    <i id="contractTermsIcon" class="fas fa-plus text-gray-400"></i>
+                </button>
+            </div>
             
             <div id="contractTerms" class="px-6 pb-6 hidden">
                 <div class="grid grid-cols-2 gap-4">
@@ -174,10 +190,13 @@
 
     <!-- Product Details -->
     <section class="bg-gray-800 rounded-xl shadow-lg">
-        <button onclick="toggleSection('productDetails')" class="w-full p-6 text-left flex justify-between items-center">
+        <div class="w-full px-6 text-left flex justify-between items-center">
             <h2 class="text-xl font-semibold">Product Details</h2>
-            <i id="productDetailsIcon" class="fas fa-plus text-gray-400"></i>
-        </button>
+
+            <button onclick="toggleSection('productDetails')" class="p-6 transition-transform duration-500 hover:rotate-90 hover:scale-150 hover:font-bold">
+                <i id="productDetailsIcon" class="fas fa-plus text-gray-400"></i>
+            </button>
+        </div>
 
         <div id="productDetails" class="px-6 pb-6 hidden">
             <div class="grid grid-cols-2 gap-6">
@@ -200,10 +219,20 @@
 
     <!-- Payment Schedule -->
     <section class="bg-gray-800 rounded-xl shadow-lg">
-        <button onclick="toggleSection('paymentSchedule')" class="w-full p-6 text-left flex justify-between items-center">
+        <div class="w-full px-6 text-left flex justify-between items-center">
             <h2 class="text-xl font-semibold">Payment Schedule</h2>
-            <i id="paymentScheduleIcon" class="fas fa-plus text-gray-400"></i>
-        </button>
+
+            <div class="flex justify-between items-center">
+                <button class="p-6 transition-transform duration-500 hover:scale-150 hover:font-bold" title="Add new payment">
+                    <i id="openPaymentModal" class="fa-solid fa-pen-to-square text-gray-400"></i>
+                </button>
+
+                <button onclick="toggleSection('paymentSchedule')" class="p-6 transition-transform duration-500 hover:rotate-90 hover:scale-150 hover:font-bold">
+                    <i id="paymentScheduleIcon" class="fas fa-plus text-gray-400"></i>
+                </button>
+            </div>
+        </div>
+
         <div id="paymentSchedule" class="px-6 pb-6 hidden">
             <div class="overflow-x-auto">
                 <table class="w-full">
@@ -217,18 +246,55 @@
                     </thead>
                     <tbody>
                         <!-- Sample Data - Repeat for 12 months -->
-                        <tr class="even:bg-gray-700 odd:bg-gray-800 hover:bg-gray-600 transition-colors">
+                        <!-- <tr class="even:bg-gray-700 odd:bg-gray-800 hover:bg-gray-600 transition-colors">
                             <td class="p-3">Jan 3 2025</td>
                             <td class="p-3">RC-001234</td>
                             <td class="p-3">৳ 5,000</td>
                             <td class="p-3">৳ 65,000</td>
-                        </tr>
+                        </tr> -->
                         <!-- Add remaining months -->
                     </tbody>
                 </table>
             </div>
         </div>
     </section>
+</div>
+
+
+
+<!-- New Payment Modal -->
+<div id="paymentModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 items-center justify-center backdrop-blur-sm">
+    <div class="bg-gray-800 rounded-xl w-full max-w-lg mx-4 transform transition-all duration-300">
+        
+        <!-- Header -->
+        <div class="p-6 border-b border-gray-700">
+            <div class="flex justify-between items-center">
+                <h3 class="text-2xl font-semibold text-gray-100">
+                    New Payment
+                </h3>
+                <button id="closeModal" class="text-gray-400 hover:text-gray-200">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Body -->
+        <div class="p-6">
+            <!-- Add your content here -->
+        </div>
+
+        <!-- Footer -->
+        <div class="p-6 border-t border-gray-700">
+            <div class="flex justify-end space-x-3">
+                <button type="button" id="cancelModal" class="px-4 py-2 text-gray-300 hover:text-white hover:bg-gray-700 rounded-lg transition-colors">
+                    Cancel
+                </button>
+                <button type="submit" class="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors">
+                    Save
+                </button>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock content %}
 
