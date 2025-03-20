@@ -6,7 +6,7 @@ from django.contrib.auth.decorators import login_required
 import json
 
 from .models import ( Account, Customer, Guarantor, 
-    Product, Model, Contract, PRODUCT_CATEGORIES, OCCUPATIONS )
+    Product, Model, Contract, Payment, PRODUCT_CATEGORIES, OCCUPATIONS )
 from .forms import CustomUserCreationForm
 
 
@@ -409,6 +409,46 @@ def CreateAccount(request):
             'message': 'Account created successfully!', 
             'data': {'accountNumber': account.number
         }})
+
+    except json.JSONDecodeError:
+        return JsonResponse({'status': 'error', 'message': 'Invalid JSON data.'}, status=400)
+    except Exception as e:
+        print('error', e)
+        return JsonResponse({'status': 'error', 'message': 'An unexpected error occurred.'}, status=500)
+
+
+
+@login_required
+def CreatePayment(request, pk):
+    if request.method != 'POST':
+        return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=405)
+    
+    contract = Contract.objects.filter(pk=pk).first()
+    if not pk or not contract:
+        return JsonResponse({'status': 'error', 'message': 'The account you\'re trying to make payment is invalid!'})
+    
+    try:
+        data = json.loads(request.body)
+        
+        required_fields = ['paymentAmount', 'receiptNumber', 'paymentDate']
+        for field in required_fields:
+            if field not in data or not data[field]:
+                return JsonResponse({'status': 'error', 'message': f'"{field}" is required.'}, status=400)
+
+        paymentAmount = data['paymentAmount']
+        receiptNumber = data['receiptNumber']
+        paymentDate = data['paymentDate']
+        
+        if paymentAmount:
+            payment = Payment.objects.create(
+                contract=contract,
+                paymentDate=paymentDate,
+                receiptNumber=receiptNumber,
+                paymentAmount=int(paymentAmount)
+            )
+            return JsonResponse({'status': 'success', 'message': 'Payment created!', 'payment': payment})
+        else:
+            return JsonResponse({'status': 'error', 'message': 'Payment amount should not be empty.'})
 
     except json.JSONDecodeError:
         return JsonResponse({'status': 'error', 'message': 'Invalid JSON data.'}, status=400)

@@ -14,8 +14,6 @@ AccDetilsDOM.paymentSubmitBtn.addEventListener('click', () => {
 
 // Submit Form
 async function createNewPayment() {
-    toggleModal(false);
-    
     const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value;
     if (!csrfToken) {
         console.error('CSRF token not found!');
@@ -29,6 +27,40 @@ async function createNewPayment() {
     }
 
     console.log(formData);
+    // Validate form data
+    for (const [key, value] of Object.entries(formData)) {
+        if (!value) {
+            showToast(`Please fill in the "${key}" field.`);
+            return;
+        }
+    }
+
+    const account = document.getElementById('accountNumber').textContent;
+    try {
+        const response = await fetch('/account/get/${account}/make-payment/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken,
+            },
+            body: JSON.stringify(formData),
+        });
+
+        const result = await response.json();
+
+        if (result.status === 'success') {
+            showToast("Success: " + result.message);
+            console.log(result.payment);
+
+        } else {
+            showToast("Error: " + result.message);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        showToast('An error occurred while creating the account.');
+    } finally {
+        toggleModal(false);
+    }
 }
 
 

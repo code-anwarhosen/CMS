@@ -21,7 +21,7 @@
                 <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                     <div>
                         <span class="text-gray-400">A/C:</span>
-                        <span class="font-medium">{{ account.number }}</span>
+                        <span class="font-medium" id="accountNumber">{{ account.number }}</span>
                     </div>
                     <div>
                         <span class="text-gray-400">Status:</span>
@@ -289,8 +289,8 @@
                         <input type="number" id="paymentAmount" required class="w-full bg-gray-700 rounded p-2 focus:ring-1 focus:ring-blue-500 outline-none">
                     </div>
                     <div>
-                        <label class="block mb-2">Receipt Number</label>
-                        <input type="text" id="receiptNumber" class="w-full bg-gray-700 rounded p-2 focus:ring-1 focus:ring-blue-500 outline-none">
+                        <label class="block mb-2">Receipt Number *</label>
+                        <input type="text" id="receiptNumber" required class="w-full bg-gray-700 rounded p-2 focus:ring-1 focus:ring-blue-500 outline-none">
                     </div>
 
                     <div>
