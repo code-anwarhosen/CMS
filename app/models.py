@@ -1,5 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
+from django.db import transaction
 
 import os
 from PIL import Image
@@ -122,6 +124,7 @@ class Product(models.Model):
     
 
 
+
 class Contract(models.Model):
     cashValue = models.PositiveIntegerField(help_text="Total cash value")
     hireValue = models.PositiveIntegerField(help_text="Total hire value")
@@ -133,17 +136,39 @@ class Contract(models.Model):
     hireBalance = models.PositiveIntegerField(help_text="Remaining hire balance", editable=False)
 
     def __str__(self):
+        if hasattr(self, 'account'):
+            return f"Account: {self.account.number}"
         return f"Contract {self.id}"
 
     class Meta:
         ordering = ['-id']
 
+    def clean(self):
+        # Validate downPayment does not exceed cashValue or hireValue
+        if self.downPayment > self.cashValue or self.downPayment > self.hireValue:
+            raise ValidationError("Down payment cannot exceed cash or hire value.")
+
+        # Validate length is a positive integer
+        if self.length <= 0:
+            raise ValidationError("Length must be a positive integer.")
+
     def save(self, *args, **kwargs):
-        if not self.pk:
+        # Calculate monthlyPayment
+        if self.length > 0:
+            self.monthlyPayment = self.cashValue // self.length
+        else:
+            raise ValidationError("Length must be a positive integer to calculate monthly payment.")
+
+        # Calculate balances
+        if not self.pk:  # New contract
             self.cashBalance = self.cashValue - self.downPayment
             self.hireBalance = self.hireValue - self.downPayment
+        else:  # Existing contract
+            # Use aggregation to get the sum of payments, defaulting to 0 if no payments exist
+            total_payments = self.payments.aggregate(total=models.Sum('amount'))['total'] or 0
+            self.cashBalance = self.cashValue - self.downPayment - total_payments
+            self.hireBalance = self.hireValue - self.downPayment - total_payments
         super().save(*args, **kwargs)
-
 
 
 class Payment(models.Model):
@@ -153,37 +178,46 @@ class Payment(models.Model):
     amount = models.PositiveIntegerField(help_text="Amount of the payment")
 
     def __str__(self):
+        if hasattr(self.contract, 'account'):
+            return f"Account: {self.contract.account.number}"
         return f"Payment {self.receiptId} - {self.amount}"
 
     class Meta:
         ordering = ['-date']
 
+    def clean(self):
+        # Validate payment amount does not exceed remaining balances
+        if self.amount > self.contract.cashBalance or self.amount > self.contract.hireBalance:
+            raise ValidationError("Payment amount exceeds remaining balance.")
+
+    @transaction.atomic
     def save(self, *args, **kwargs):
-        if not self.contract:
-            raise ValueError("Payment must be associated with a contract.")
-    
-        if self.pk:  # If the payment is being updated
+        if not self.pk:  # New payment
+            # Update balances using F expressions to avoid race conditions
+            Contract.objects.filter(pk=self.contract.pk).update(
+                cashBalance=models.F('cashBalance') - self.amount,
+                hireBalance=models.F('hireBalance') - self.amount
+            )
+        else:  # Updated payment
             old_payment = Payment.objects.get(pk=self.pk)
             old_amount = old_payment.amount
-            # Revert the old payment amount from the balances
-            self.contract.cashBalance += old_amount
-            self.contract.hireBalance += old_amount
-        else:  # If the payment is being created
-            old_amount = 0
+            # Adjust balances based on the difference between old and new amounts
+            Contract.objects.filter(pk=self.contract.pk).update(
+                cashBalance=models.F('cashBalance') + old_amount - self.amount,
+                hireBalance=models.F('hireBalance') + old_amount - self.amount
+            )
 
-        # Update the balances with the new payment amount
-        self.contract.cashBalance -= self.amount
-        self.contract.hireBalance -= self.amount
-        self.contract.save()
         super().save(*args, **kwargs)
 
+    @transaction.atomic
     def delete(self, *args, **kwargs):
-        # Revert the payment amount from the balances
-        self.contract.cashBalance += self.amount
-        self.contract.hireBalance += self.amount
-        self.contract.save()
+        # Restore balances before deleting the payment
+        Contract.objects.filter(pk=self.contract.pk).update(
+            cashBalance=models.F('cashBalance') + self.amount,
+            hireBalance=models.F('hireBalance') + self.amount
+        )
+        # Now delete the payment
         super().delete(*args, **kwargs)
-
 
 
 class Guarantor(models.Model):
@@ -225,5 +259,5 @@ class Account(models.Model):
     status = models.CharField(max_length=10, choices=ACCOUNT_STATUSES, default='Active')
 
     def __str__(self):
-        return self.customer.name
+        return self.number
     

@@ -49,7 +49,7 @@ class ProductAdmin(admin.ModelAdmin):
 
 @admin.register(Contract)
 class ContractAdmin(admin.ModelAdmin):
-    list_display = ('id', 'cashValue', 'hireValue', 'downPayment', 'monthlyPayment', 'length', 'cashBalance', 'hireBalance')
+    list_display = ('account', 'cashValue', 'hireValue', 'downPayment', 'monthlyPayment', 'length', 'cashBalance', 'hireBalance')
     readonly_fields = ('cashBalance', 'hireBalance')
     fieldsets = (
         ('Contract Details', {
@@ -63,7 +63,7 @@ class ContractAdmin(admin.ModelAdmin):
 
 @admin.register(Payment)
 class PaymentAdmin(admin.ModelAdmin):
-    list_display = ('id', 'contract', 'date', 'receiptId', 'amount')
+    list_display = ('contract', 'date', 'receiptId', 'amount')
     list_filter = ('date', 'contract')
     search_fields = ('receiptId', 'contract__id')
 
