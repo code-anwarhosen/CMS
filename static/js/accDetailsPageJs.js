@@ -7,6 +7,7 @@ let AccDetilsDOM = {
 
     paymentSubmitBtn: document.getElementById('paymentSubmitBtn'),
     paymentsTable: document.getElementById('paymentsTable'),
+    cashBalance: document.getElementById('cashBalance'),
 }
 
 AccDetilsDOM.paymentSubmitBtn.addEventListener('click', () => {
@@ -16,6 +17,10 @@ AccDetilsDOM.paymentSubmitBtn.addEventListener('click', () => {
 
 
 function addToPaymentTable(payment) {
+    if (!payment) {
+        return;
+    }
+
     const paymentDate = new Date(payment.paymentDate);
     const formattedDate = paymentDate.toLocaleDateString('en-US', {
         year: 'numeric',
@@ -31,10 +36,10 @@ function addToPaymentTable(payment) {
             <td class="p-3">${payment.paymentAmount || 'N\A'}</td>
         </tr>
     `;
+    AccDetilsDOM.paymentsTable.insertAdjacentHTML('beforeend', rowData);
 
-    // Append the row as the last child of the <tbody>
-    const paymentsTable = document.getElementById('paymentsTable');
-    paymentsTable.insertAdjacentHTML('beforeend', rowData);
+    // Update cashBalance 
+    AccDetilsDOM.cashBalance.innerHTML = payment.cashBalance;
 }
 
 
@@ -60,6 +65,9 @@ async function createNewPayment() {
         }
     }
 
+    AccDetilsDOM.paymentSubmitBtn.disabled = true;
+    AccDetilsDOM.paymentSubmitBtn.innerHTML = "Submitting...";
+
     const account = document.getElementById('hireAccountNumber').textContent;
     try {
         const response = await fetch(`/account/get/${account}/make-payment/`, {
@@ -84,6 +92,9 @@ async function createNewPayment() {
     } catch (error) {
         console.error('Error:' + error);
         showToast('An error occurred while creating the account.');
+    } finally {
+        AccDetilsDOM.paymentSubmitBtn.disabled = false;
+        AccDetilsDOM.paymentSubmitBtn.innerHTML = "Create";
     }
 }
 
