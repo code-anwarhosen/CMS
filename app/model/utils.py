@@ -8,28 +8,38 @@ GUARDIAN_TYPES = [
 
 OCCUPATIONS = [
     ('Job', 'Job'),
-    ('GovtJob', 'Govt. Job'),
+    ('Govt Job', 'Govt Job'),
     ('Business', 'Business'),
+    ('Farmer', 'Farmer'),
     ('Student', 'Student'),
     ('Housewife', 'Housewife'),
-
     ('Teacher', 'Teacher'),
     ('Doctor', 'Doctor'),
-    ('Other', 'Other'),
+    ('Plumber', 'Plumber'),
+    ('Technician', 'Technician'),
+    ('Electrician', 'Electrician'),
+    ('Others', 'Others')
 ]
 
 ACCOUNT_STATUSES = [
     ('Active', 'Active'),
-    ('Closed', 'Closed'),
+    ('Closed', 'Closed')
 ]
 
 
 PRODUCT_CATEGORIES = [
-    ('LED_TV', 'LED TV'),
-    ('REF', 'REF'),
-    ('FREEZER', 'FREEZER'),
-    ('WM', 'WM'),
+    ('Refrigerator', 'Refrigerator'),
+    ('Freezer', 'Freezer'),
     ('AC', 'AC'),
+    ('TV', 'TV'),
+    ('Washing Machine', 'Washing Machine'),
+    ('Oven', 'Oven'),
+    ('Sewing Machine', 'Sewing Machine'),
+    ('Computer', 'Computer'),
+    ('Small Appliences', 'Small Appliences'),
+    ('Personal Care', 'Personal Care'),
+    ('Smart Gatgets', 'Smart Gatgets'),
+    ('Others', 'Others')
 ]
 
 
