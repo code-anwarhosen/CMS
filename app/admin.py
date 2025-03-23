@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.utils.html import format_html
-from .models import Customer, Model, Product, Contract, Payment, Guarantor, Account
+from .model.models import Customer, Model, Product, Contract, Payment, Guarantor, Account
 
 
 @admin.register(Customer)

@@ -12,7 +12,7 @@ urlpatterns = [
 
     path('accounts/get/', GetAccounts),
     path('account/get/<str:pk>/', AccountDetailsView, name='account'),
-    # path('account/get/<str:pk>/make-payment/', CreatePayment),
+    path('account/get/<str:pk>/make-payment/', CreatePayment),
 
     path('account/new/', CreateAccountForm, name='create-account'),
     path('account-precreation/data/', GetPreCreationData),

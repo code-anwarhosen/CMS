@@ -6,11 +6,37 @@ let AccDetilsDOM = {
     paymentDate: document.getElementById('paymentDate'),
 
     paymentSubmitBtn: document.getElementById('paymentSubmitBtn'),
+    paymentsTable: document.getElementById('paymentsTable'),
 }
 
 AccDetilsDOM.paymentSubmitBtn.addEventListener('click', () => {
     createNewPayment();
 });
+
+
+
+function addToPaymentTable(payment) {
+    const paymentDate = new Date(payment.paymentDate);
+    const formattedDate = paymentDate.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    });
+
+    // Create the row HTML as a string
+    const rowData = `
+        <tr class="even:bg-gray-700 odd:bg-gray-800 hover:bg-gray-600 transition-colors">
+            <td class="p-3">${formattedDate || 'N\A'}</td>
+            <td class="p-3">${payment.receiptId || 'N\A'}</td>
+            <td class="p-3">${payment.paymentAmount || 'N\A'}</td>
+        </tr>
+    `;
+
+    // Append the row as the last child of the <tbody>
+    const paymentsTable = document.getElementById('paymentsTable');
+    paymentsTable.insertAdjacentHTML('beforeend', rowData);
+}
+
 
 // Submit Form
 async function createNewPayment() {
@@ -26,7 +52,6 @@ async function createNewPayment() {
         paymentDate: AccDetilsDOM.paymentDate.value,
     }
 
-    console.log(formData);
     // Validate form data
     for (const [key, value] of Object.entries(formData)) {
         if (!value) {
@@ -35,9 +60,9 @@ async function createNewPayment() {
         }
     }
 
-    const account = document.getElementById('accountNumber').textContent;
+    const account = document.getElementById('hireAccountNumber').textContent;
     try {
-        const response = await fetch('/account/get/${account}/make-payment/', {
+        const response = await fetch(`/account/get/${account}/make-payment/`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -50,16 +75,15 @@ async function createNewPayment() {
 
         if (result.status === 'success') {
             showToast("Success: " + result.message);
-            console.log(result.payment);
+            addToPaymentTable(result.data);
+            toggleModal(false);
 
         } else {
             showToast("Error: " + result.message);
         }
     } catch (error) {
-        console.error('Error:', error);
+        console.error('Error:' + error);
         showToast('An error occurred while creating the account.');
-    } finally {
-        toggleModal(false);
     }
 }
 

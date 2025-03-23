@@ -5,10 +5,9 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 import json
 
-from .models import ( Account, Customer, Guarantor, 
+from .model.models import ( Account, Customer, Guarantor, 
     Product, Model, Contract, Payment, PRODUCT_CATEGORIES, OCCUPATIONS )
 from .forms import CustomUserCreationForm
-
 
 
 def LoginView(request):
@@ -90,7 +89,9 @@ def AccountDetailsView(request, pk):
     if not account:
         messages.info(request, 'The account you are trying to access does not exists!')
         return redirect('home')
-    return render(request, 'pages/accountDetails.html', {'account': account})
+    
+    payments = account.contract.payments.all()
+    return render(request, 'pages/accountDetails.html', {'account': account, 'payments': payments})
 
 
 
@@ -413,7 +414,6 @@ def CreateAccount(request):
     except json.JSONDecodeError:
         return JsonResponse({'status': 'error', 'message': 'Invalid JSON data.'}, status=400)
     except Exception as e:
-        print('error', e)
         return JsonResponse({'status': 'error', 'message': 'An unexpected error occurred.'}, status=500)
 
 
@@ -423,8 +423,9 @@ def CreatePayment(request, pk):
     if request.method != 'POST':
         return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=405)
     
-    contract = Contract.objects.filter(pk=pk).first()
-    if not pk or not contract:
+    account = Account.objects.filter(pk=pk).first()
+    contract = account.contract
+    if not contract:
         return JsonResponse({'status': 'error', 'message': 'The account you\'re trying to make payment is invalid!'})
     
     try:
@@ -439,19 +440,34 @@ def CreatePayment(request, pk):
         receiptNumber = data['receiptNumber']
         paymentDate = data['paymentDate']
         
-        if paymentAmount:
-            payment = Payment.objects.create(
-                contract=contract,
-                paymentDate=paymentDate,
-                receiptNumber=receiptNumber,
-                paymentAmount=int(paymentAmount)
-            )
-            return JsonResponse({'status': 'success', 'message': 'Payment created!', 'payment': payment})
-        else:
-            return JsonResponse({'status': 'error', 'message': 'Payment amount should not be empty.'})
+        try:
+            paymentAmount = int(paymentAmount)
+        except Exception:
+            return JsonResponse({'status': 'error', 'message': 'Invalid amount.'})
+
+        if paymentAmount > contract.hireBalance:
+            return JsonResponse({'status': 'error', 'message': 'Payment amount exceeds hire balance.'})
+        
+        if Payment.objects.filter(receiptId=receiptNumber).exists():
+            return JsonResponse({'status': 'error', 'message': f'"{receiptNumber}" this receipt ID already exists.'})
+
+        payment = Payment.objects.create(
+            contract=contract,
+            date=paymentDate,
+            receiptId=receiptNumber,
+            amount=int(paymentAmount)
+        )
+
+        data = {
+            'paymentDate': payment.date,
+            'receiptId': payment.receiptId,
+            'paymentAmount': payment.amount,
+            'cashBalance': contract.cashBalance
+        }
+        return JsonResponse({'status': 'success', 'message': 'Payment created!', 'data': data})
 
     except json.JSONDecodeError:
         return JsonResponse({'status': 'error', 'message': 'Invalid JSON data.'}, status=400)
     except Exception as e:
-        print('error', e)
-        return JsonResponse({'status': 'error', 'message': 'An unexpected error occurred.'}, status=500)
+        return JsonResponse({'status': 'error', 'message': f'{e}'}, status=500)
+

@@ -27,7 +27,7 @@ const renderData = (data) => {
             <div class="hidden md:block md:col-span-2 text-gray-400">${item.phone}</div>
             <div class="font-mono text-sm">${item.account}</div>
             <div class="hidden md:block text-right font-medium ${item.balance < 0 ? 'text-red-400' : 'text-blue-400'}">
-                ৳ ${Math.abs(item.balance).toLocaleString()}
+                ${item.balance}
             </div>
         </a>
     `).join('');

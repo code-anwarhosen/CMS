@@ -21,7 +21,7 @@
                 <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                     <div>
                         <span class="text-gray-400">A/C:</span>
-                        <span class="font-medium" id="accountNumber">{{ account.number }}</span>
+                        <span class="font-medium" id="hireAccountNumber">{{ account.number }}</span>
                     </div>
                     <div>
                         <span class="text-gray-400">Status:</span>
@@ -161,23 +161,23 @@
                 <div class="grid grid-cols-2 gap-4">
                     <div class="space-y-2">
                         <label class="text-gray-400">Cash Value:</label>
-                        <p class="text-xl font-semibold text-blue-400">৳ {{ account.contract.cashValue }}</p>
+                        <p class="text-xl font-semibold text-blue-400">{{ account.contract.cashValue }}</p>
                     </div>
                     <div class="space-y-2">
                         <label class="text-gray-400">Hire Value:</label>
-                        <p class="text-xl font-semibold text-blue-400">৳ {{ account.contract.hireValue }}</p>
+                        <p class="text-xl font-semibold text-blue-400">{{ account.contract.hireValue }}</p>
                     </div>
                     <div class="space-y-2">
                         <label class="text-gray-400">Down Payment:</label>
-                        <p class="text-xl font-semibold">৳ {{ account.contract.downPayment }}</p>
+                        <p class="text-xl font-semibold">{{ account.contract.downPayment }}</p>
                     </div>
                     <div class="space-y-2">
                         <label class="text-gray-400">Monthly Payment:</label>
-                        <p class="text-xl font-semibold">৳ {{ account.contract.monthlyPayment }}</p>
+                        <p class="text-xl font-semibold">{{ account.contract.monthlyPayment }}</p>
                     </div>
                     <div class="space-y-2">
                         <label class="text-gray-400">Balance Amount:</label>
-                        <p class="text-2xl font-bold text-green-400">৳ {{ account.contract.cashBalance }}</p>
+                        <p class="text-2xl font-bold text-green-400">{{ account.contract.cashBalance }}</p>
                     </div>
                     <div class="space-y-2">
                         <label class="text-gray-400">Contract Length:</label>
@@ -241,18 +241,16 @@
                             <th class="p-3 text-left">Date</th>
                             <th class="p-3 text-left">Receipt No</th>
                             <th class="p-3 text-left">Amount</th>
-                            <th class="p-3 text-left">Balance</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <!-- Sample Data - Repeat for 12 months -->
-                        <!-- <tr class="even:bg-gray-700 odd:bg-gray-800 hover:bg-gray-600 transition-colors">
-                            <td class="p-3">Jan 3 2025</td>
-                            <td class="p-3">RC-001234</td>
-                            <td class="p-3">৳ 5,000</td>
-                            <td class="p-3">৳ 65,000</td>
-                        </tr> -->
-                        <!-- Add remaining months -->
+                    <tbody id="paymentsTable">
+                        {% for payment in payments %}
+                        <tr class="even:bg-gray-700 odd:bg-gray-800 hover:bg-gray-600 transition-colors">
+                            <td class="p-3">{{ payment.date }}</td>
+                            <td class="p-3">{{ payment.receiptId }}</td>
+                            <td class="p-3">{{ payment.amount }}</td>
+                        </tr>
+                        {% endfor %}
                     </tbody>
                 </table>
             </div>
