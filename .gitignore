@@ -2,6 +2,7 @@ venv
 
 app/__pycache__
 app/migrations
+app/model/__pycache__
 
 core/__pycache__
 
