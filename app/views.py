@@ -90,7 +90,7 @@ def AccountDetailsView(request, pk):
         messages.info(request, 'The account you are trying to access does not exists!')
         return redirect('home')
     
-    payments = account.contract.payments.all()
+    payments = account.contract.payments.all().order_by('date')
     return render(request, 'pages/accountDetails.html', {'account': account, 'payments': payments})
 
 
