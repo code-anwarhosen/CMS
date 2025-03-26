@@ -2,7 +2,8 @@ from django.urls import path
 
 from .views import LoginView, LogoutView, SignUpView
 from .views import ( HomeView, GetAccounts, AccountDetailsView, CreateAccountForm, 
-    CreateAccount, GetPreCreationData, CreateCustomer, CreateGuarantor, CreatePayment )
+    CreateAccount, GetPreCreationData, CreateCustomer, CreateGuarantor, CreatePayment,
+    productList, createProduct )
 
 urlpatterns = [
     path('user/login/', LoginView, name='login'),
@@ -20,4 +21,7 @@ urlpatterns = [
 
     path('customer/create/', CreateCustomer),
     path('guarantor/create/', CreateGuarantor),
+
+    path('product/list/', productList, name='products'),
+    path('product/create/', createProduct),
 ]

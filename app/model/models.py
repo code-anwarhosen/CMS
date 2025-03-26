@@ -62,11 +62,15 @@ class Model(models.Model):
     
 class Product(models.Model):
     category = models.CharField(max_length=100, choices=PRODUCT_CATEGORIES)
-    model = models.OneToOneField(Model, on_delete=models.CASCADE, null=True, blank=True, related_name='product')
+    model = models.OneToOneField(Model, on_delete=models.CASCADE, related_name='product')
 
     def __str__(self):
         return f'{self.category} : {self.model}'
     
+    def delete(self, *args, **kwargs):
+        if self.model:
+            self.model.delete()
+        super().delete(*args, **kwargs)
 
 
 

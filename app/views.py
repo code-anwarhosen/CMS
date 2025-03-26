@@ -471,3 +471,53 @@ def CreatePayment(request, pk):
     except Exception as e:
         return JsonResponse({'status': 'error', 'message': f'{e}'}, status=500)
 
+
+
+
+
+def productList(request):
+    categories = [cat[0] for cat in PRODUCT_CATEGORIES]
+    products = Product.objects.all()
+
+    context = {
+        'categories': categories,
+        'products': products
+    }
+    return render(request, 'pages/productList.html', context)
+
+@login_required
+def createProduct(request):
+    if request.method != 'POST':
+        return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=405)
+    
+    try:
+        data = json.loads(request.body)
+        
+        required_fields = ['category', 'model']
+        for field in required_fields:
+            if field not in data or not data[field]:
+                return JsonResponse({'status': 'error', 'message': f'"{field}" is required.'}, status=400)
+
+        category = data['category']
+        model = data['model']
+
+        if not category or not model:
+            return JsonResponse({'status': 'error', 'message': 'Product category or model can\'t be empty'})
+        
+        if Model.objects.filter(name=model).exists():
+            return JsonResponse({'status': 'error', 'message': f'A product with this ({model}) model already exists!'})
+
+        modelObj = Model.objects.create(name=model)
+        product = Product.objects.create(category=category, model=modelObj)
+        
+        data = {
+            'category': category,
+            'model': model
+        }
+        return JsonResponse({'status': 'success', 'message': 'successfully added product model!', 'data': data})
+
+    except json.JSONDecodeError:
+        return JsonResponse({'status': 'error', 'message': 'Invalid JSON data.'}, status=400)
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': f'{e}'}, status=500)
+
