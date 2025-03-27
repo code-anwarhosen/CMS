@@ -91,6 +91,6 @@ class AccountAdmin(admin.ModelAdmin):
             'fields': ('guarantors',)
         }),
         ('Additional Information', {
-            'fields': ('saleDate', 'timestamp', 'remarks')
+            'fields': ('saleDate', 'remarks')
         }),
     )

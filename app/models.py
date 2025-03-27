@@ -194,12 +194,12 @@ class Account(models.Model):
         return None
         
     def save(self, *args, **kwargs):
-        if self.pk:  # Object exists
-            old = Account.objects.get(pk=self.pk)
-            if old.accountNumber != self.accountNumber:
+        oldAccount = Account.objects.filter(pk=self.pk).first()
+        if oldAccount:
+            if oldAccount.accountNumber != self.accountNumber:
                 raise ValueError("Cannot change account number after creation!")
         
-        else: # New Object
+        else: # Creating new account
             acc_num = self.validate_and_format(self.accountNumber)
             if not acc_num:
                 raise ValueError("Invalid account number format!")

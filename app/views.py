@@ -360,7 +360,7 @@ def CreateAccount(request):
         second_guarantor_uid = data['secondGuarantorUid']
 
         # Check if account already exists
-        if Account.objects.filter(accountNumber=account_number).exists():
+        if Account.objects.filter(accountNumber=account_number.upper()).exists():
             return JsonResponse({'status': 'error', 'message': f'An account already exists with this "{account_number}" account number.'}, status=400)
 
         # Check for customer
@@ -414,7 +414,7 @@ def CreateAccount(request):
     except json.JSONDecodeError:
         return JsonResponse({'status': 'error', 'message': 'Invalid JSON data.'}, status=400)
     except Exception as e:
-        return JsonResponse({'status': 'error', 'message': 'An unexpected error occurred.'}, status=500)
+        return JsonResponse({'status': 'error', 'message': f'{e}'}, status=500)
 
 
 

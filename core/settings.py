@@ -11,17 +11,10 @@ SECRET_KEY = env('DJANGO_SECRET_KEY')
 ALLOWED_HOSTS = [
     '127.0.0.1',
     'localhost',
-    '192.168.43.79',
-    'https://cms.anwarhosen.xyz',
-    'homeserver',
     env('HOST')
 ]
 
-CSRF_TRUSTED_ORIGINS = [
-    'http://192.168.43.79:8080',
-    'http://homeserver:8080',
-    'https://cms.anwarhosen.xyz'
-]
+CSRF_TRUSTED_ORIGINS = []
 if not DEBUG:
     CSRF_TRUSTED_ORIGINS.append(f'http://{env('HOST')}')
     CSRF_TRUSTED_ORIGINS.append(f'https://{env('HOST')}')
