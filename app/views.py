@@ -5,7 +5,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 import json
 
-from .model.models import ( Account, Customer, Guarantor, 
+from .models import ( Account, Customer, Guarantor, 
     Product, Model, Contract, Payment, PRODUCT_CATEGORIES, OCCUPATIONS )
 from .forms import CustomUserCreationForm
 

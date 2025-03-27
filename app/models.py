@@ -2,9 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.db import transaction
-from django.utils.timezone import now
 import re as regex
-
 
 from .utils import defaultAvatar, GUARDIAN_TYPES, OCCUPATIONS, ACCOUNT_STATUSES, PRODUCT_CATEGORIES
 from .utils import compressAvatar, customerAvatarPath
