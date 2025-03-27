@@ -20,9 +20,6 @@ document.querySelector('form').addEventListener('submit', async function(e) {
         return;
     }
     
-    // Here you would typically make an AJAX call to your backend
-    console.log('Submitting:', { csrfToken, category, model });
-    
     try {
         const response = await fetch(`/product/create/`, {
             method: 'POST',

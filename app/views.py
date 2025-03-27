@@ -474,7 +474,7 @@ def CreatePayment(request, pk):
 
 
 
-
+@login_required
 def productList(request):
     categories = [cat[0] for cat in PRODUCT_CATEGORIES]
     products = Product.objects.all()
