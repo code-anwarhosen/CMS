@@ -80,7 +80,7 @@ class AccountAdmin(admin.ModelAdmin):
     list_display = ('number', 'customer', 'product', 'contract', 'status', 'saleDate')
     list_filter = ('status', 'saleDate')
 
-    search_fields = ('number', 'customer__name', 'product__category')
+    search_fields = ('number', 'customer__name')
     filter_horizontal = ('guarantors',)
     
     fieldsets = (
@@ -90,7 +90,7 @@ class AccountAdmin(admin.ModelAdmin):
         ('Guarantors', {
             'fields': ('guarantors',)
         }),
-        ('Sale Information', {
-            'fields': ('saleDate',)
+        ('Additional Information', {
+            'fields': ('saleDate', 'timestamp', 'remarks')
         }),
     )

@@ -15,12 +15,13 @@
                 <a href="/" class="text-gray-300 hover:text-indigo-400 px-3 py-2 text-sm font-medium transition-colors">
                     Home
                 </a>
-                <a href="/admin/" class="text-gray-300 hover:text-indigo-400 px-3 py-2 text-sm font-medium transition-colors">
-                    Admin
-                </a>
-                <a href="#" class="text-gray-300 hover:text-indigo-400 px-3 py-2 text-sm font-medium transition-colors">
-                    Guarantors
-                </a>
+
+                {% if user.is_authenticated and user.is_staff %}
+                    <a href="/admin/" class="text-gray-300 hover:text-indigo-400 px-3 py-2 text-sm font-medium transition-colors">
+                        Admin
+                    </a>
+                {% endif %}
+
                 <a href="{% url 'products' %}" class="text-gray-300 hover:text-indigo-400 px-3 py-2 text-sm font-medium transition-colors">
                     Products
                 </a>
@@ -61,12 +62,13 @@
             <a href="/" class="block text-gray-300 hover:text-indigo-400 px-3 py-2 rounded-md text-base font-medium">
                 Home
             </a>
-            <a href="/admin/" class="block text-gray-300 hover:text-indigo-400 px-3 py-2 rounded-md text-base font-medium">
-                Admin
-            </a>
-            <a href="#" class="block text-gray-300 hover:text-indigo-400 px-3 py-2 rounded-md text-base font-medium">
-                Guarantors
-            </a>
+
+            {% if user.is_authenticated and user.is_staff %}
+                <a href="/admin/" class="block text-gray-300 hover:text-indigo-400 px-3 py-2 rounded-md text-base font-medium">
+                    Admin
+                </a>
+            {% endif %}
+            
             <a href="{% url 'products' %}" class="block text-gray-300 hover:text-indigo-400 px-3 py-2 rounded-md text-base font-medium">
                 Products
             </a>

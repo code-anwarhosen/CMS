@@ -2,6 +2,8 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.db import transaction
+from django.utils.timezone import now
+import re as regex
 
 
 from .utils import defaultAvatar, GUARDIAN_TYPES, OCCUPATIONS, ACCOUNT_STATUSES, PRODUCT_CATEGORIES
@@ -181,6 +183,27 @@ class Account(models.Model):
     saleDate = models.DateField()
     status = models.CharField(max_length=10, choices=ACCOUNT_STATUSES, default='Active')
 
+    remarks = models.TextField(blank=True, null=True, help_text="Notes about this account")
+    timestamp = models.DateTimeField(auto_now_add=True, verbose_name="Creation date and time")
+
     def __str__(self):
         return self.number
 
+    def validate_and_format(self, account_number):
+        pattern = r'^[a-z]{3}-h\d+$'
+        if regex.fullmatch(pattern, account_number, regex.IGNORECASE):
+            return account_number.upper()
+        return None
+        
+    def save(self, *args, **kwargs):
+        if self.pk:  # Object exists
+            old = Account.objects.get(pk=self.pk)
+            if old.number != self.number:
+                raise ValueError("Cannot change account number after creation!")
+        
+        else: # New Object
+            acc_num = self.validate_and_format(self.number)
+            if not acc_num:
+                raise ValueError("Invalid account number format!")
+            self.number = acc_num
+        super().save(*args, **kwargs)
