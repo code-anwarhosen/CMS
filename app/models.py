@@ -4,7 +4,7 @@ from django.core.exceptions import ValidationError
 from django.db import transaction
 import re as regex
 
-from .utils import defaultAvatar, GUARDIAN_TYPES, OCCUPATIONS, ACCOUNT_STATUSES, PRODUCT_CATEGORIES
+from .utils import defaultAvatar, GUARDIAN_TYPES, OCCUPATIONS, PRODUCT_CATEGORIES
 from .utils import compressAvatar, customerAvatarPath
 
 
@@ -115,7 +115,7 @@ class Contract(models.Model):
 
     def __str__(self):
         if hasattr(self, 'account'):
-            return f"Account: {self.account.number}"
+            return f"Account: {self.account.accountNumber}"
         return f"Contract {self.id}"
 
 
@@ -128,7 +128,7 @@ class Payment(models.Model):
 
     def __str__(self):
         if hasattr(self.contract, 'account'):
-            return f"Account: {self.contract.account.number}"
+            return f"Account: {self.contract.account.accountNumber}"
         return f"Payment {self.receiptId} - {self.amount}"
 
     class Meta:
@@ -170,7 +170,7 @@ class Guarantor(models.Model):
 
 
 class Account(models.Model):
-    number = models.CharField(max_length=10, primary_key=True, unique=True)
+    accountNumber = models.CharField(max_length=10, primary_key=True, unique=True)
     creator = models.ForeignKey(User, on_delete=models.CASCADE, related_name='accounts')
 
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='accounts')
@@ -179,13 +179,13 @@ class Account(models.Model):
     contract = models.OneToOneField(Contract, on_delete=models.SET_NULL, null=True, related_name='account')
 
     saleDate = models.DateField()
-    status = models.CharField(max_length=10, choices=ACCOUNT_STATUSES, default='Active')
+    isActive = models.BooleanField(default=True)
 
     remarks = models.TextField(blank=True, null=True, help_text="Notes about this account")
     timestamp = models.DateTimeField(auto_now_add=True, verbose_name="Creation date and time")
 
     def __str__(self):
-        return self.number
+        return self.accountNumber
 
     def validate_and_format(self, account_number):
         pattern = r'^[a-z]{3}-h\d+$'
@@ -196,12 +196,12 @@ class Account(models.Model):
     def save(self, *args, **kwargs):
         if self.pk:  # Object exists
             old = Account.objects.get(pk=self.pk)
-            if old.number != self.number:
+            if old.accountNumber != self.accountNumber:
                 raise ValueError("Cannot change account number after creation!")
         
         else: # New Object
-            acc_num = self.validate_and_format(self.number)
+            acc_num = self.validate_and_format(self.accountNumber)
             if not acc_num:
                 raise ValueError("Invalid account number format!")
-            self.number = acc_num
+            self.accountNumber = acc_num
         super().save(*args, **kwargs)

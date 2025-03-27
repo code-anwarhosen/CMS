@@ -21,11 +21,17 @@
                 <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                     <div>
                         <span class="text-gray-400">A/C:</span>
-                        <span class="font-medium" id="hireAccountNumber">{{ account.number }}</span>
+                        <span class="font-medium" id="hireAccountNumber">{{ account.accountNumber }}</span>
                     </div>
                     <div>
                         <span class="text-gray-400">Status:</span>
-                        <span class="font-medium">{{ account.status }}</span>
+                        <span class="font-medium">
+                            {% if account.isActive %}
+                                Active
+                            {% else %}
+                                Closed
+                            {% endif %}
+                        </span>
                     </div>
                     <div>
                         <span class="text-gray-400">Date of Sale:</span>

@@ -19,8 +19,8 @@ const renderData = (data) => {
                 <img src="${item.avatar}" class="w-10 h-10 rounded-full">
                 <div>
                     <h3 class="font-medium">${item.name}</h3>
-                    <span class="text-xs ${item.status.toLowerCase() === 'active' ? 'text-green-400' : 'text-gray-400'}">
-                        ${item.status}
+                    <span class="text-xs ${item.isActive === true ? 'text-green-400' : 'text-gray-400'}">
+                        ${item.isActive === true ? 'Active' : 'Closed'}
                     </span>
                 </div>
             </div>
@@ -64,7 +64,7 @@ const init = async () => {
         //         account: "ID-123456",
         //         balance: 5000,
         //         avatar: "https://via.placeholder.com/40",
-        //         status: "Active"
+        //         isActive: true
         //     },
         // ];
 

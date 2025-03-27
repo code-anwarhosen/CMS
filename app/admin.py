@@ -77,15 +77,15 @@ class GuarantorAdmin(admin.ModelAdmin):
 
 @admin.register(Account)
 class AccountAdmin(admin.ModelAdmin):
-    list_display = ('number', 'customer', 'product', 'contract', 'status', 'saleDate')
-    list_filter = ('status', 'saleDate')
+    list_display = ('accountNumber', 'customer', 'product', 'contract', 'isActive', 'saleDate')
+    list_filter = ('isActive', 'saleDate')
 
-    search_fields = ('number', 'customer__name')
+    search_fields = ('accountNumber', 'customer__name')
     filter_horizontal = ('guarantors',)
     
     fieldsets = (
         ('Account Information', {
-            'fields': ('creator', 'number', 'customer', 'product', 'contract', 'status')
+            'fields': ('creator', 'accountNumber', 'customer', 'product', 'contract', 'isActive')
         }),
         ('Guarantors', {
             'fields': ('guarantors',)

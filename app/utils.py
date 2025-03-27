@@ -21,11 +21,6 @@ OCCUPATIONS = [
     ('Others', 'Others')
 ]
 
-ACCOUNT_STATUSES = [
-    ('Active', 'Active'),
-    ('Closed', 'Closed')
-]
-
 
 PRODUCT_CATEGORIES = [
     ('Refrigerator', 'Refrigerator'),

@@ -73,10 +73,10 @@ def GetAccounts(request):
         'pk': acc.pk,
         'name': acc.customer.name if acc.customer else "Unknown",
         'phone': acc.customer.phone if acc.customer else "N/A",
-        'account': acc.number,
+        'account': acc.accountNumber,
         'balance': acc.contract.cashBalance if acc.contract else 0,
         'avatar': acc.customer.avatar.url if acc.customer else None,
-        'status': acc.status,
+        'isActive': acc.isActive,
     } for acc in accounts]
     return JsonResponse({'success': True, 'accounts': serialized_data})
 
@@ -360,7 +360,7 @@ def CreateAccount(request):
         second_guarantor_uid = data['secondGuarantorUid']
 
         # Check if account already exists
-        if Account.objects.filter(number=account_number).exists():
+        if Account.objects.filter(accountNumber=account_number).exists():
             return JsonResponse({'status': 'error', 'message': f'An account already exists with this "{account_number}" account number.'}, status=400)
 
         # Check for customer
@@ -384,7 +384,7 @@ def CreateAccount(request):
         # Create account
         account = Account.objects.create(
             creator=user,
-            number=account_number,
+            accountNumber=account_number,
             saleDate=data['saleDate'],
             customer=customer,
             product=product
@@ -408,7 +408,7 @@ def CreateAccount(request):
         return JsonResponse({
             'status': 'success', 
             'message': 'Account created successfully!', 
-            'data': {'accountNumber': account.number
+            'data': {'accountNumber': account.accountNumber
         }})
 
     except json.JSONDecodeError:
