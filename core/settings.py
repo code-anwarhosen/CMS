@@ -9,14 +9,13 @@ DEBUG = env.bool('DEBUG', default=False)
 SECRET_KEY = env('DJANGO_SECRET_KEY')
 
 ALLOWED_HOSTS = [
-    '127.0.0.1',
     'localhost',
+    '127.0.0.1',
     env('HOST')
 ]
 
 CSRF_TRUSTED_ORIGINS = []
 if not DEBUG:
-    CSRF_TRUSTED_ORIGINS.append(f'http://{env('HOST')}')
     CSRF_TRUSTED_ORIGINS.append(f'https://{env('HOST')}')
 
 INSTALLED_APPS = [
@@ -31,6 +30,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -89,6 +89,7 @@ if DEBUG:
     STATICFILES_DIRS = [BASE_DIR / 'static']
 else:
     STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

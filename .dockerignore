@@ -5,8 +5,14 @@ __pycache__/
 env/
 venv/
 .env
+db.sqlite3
 
 .vscode/
 .dockerignore
 Dockerfile
 docker-compose.yml
+
+app/__pycache__
+app/migrations
+
+core/__pycache__
