@@ -5,6 +5,7 @@ __pycache__/
 env/
 venv/
 .env
+db.sqlite3
 
 .vscode/
 .dockerignore
