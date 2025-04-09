@@ -55,23 +55,13 @@ class Customer(models.Model):
 
 
 
-class Model(models.Model):
-    name = models.CharField(max_length=100, unique=True)
-    def __str__(self):
-        return self.name
-    
 class Product(models.Model):
     category = models.CharField(max_length=100, choices=PRODUCT_CATEGORIES)
-    model = models.OneToOneField(Model, on_delete=models.CASCADE, related_name='product')
+    model = models.CharField(max_length=100)
 
     def __str__(self):
         return f'{self.category} : {self.model}'
     
-    def delete(self, *args, **kwargs):
-        if self.model:
-            self.model.delete()
-        super().delete(*args, **kwargs)
-
 
 
 class Contract(models.Model):

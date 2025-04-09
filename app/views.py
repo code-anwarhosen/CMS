@@ -6,7 +6,7 @@ from django.contrib.auth.decorators import login_required
 import json
 
 from .models import ( Account, Customer, Guarantor, 
-    Product, Model, Contract, Payment, PRODUCT_CATEGORIES, OCCUPATIONS )
+    Product, Contract, Payment, PRODUCT_CATEGORIES, OCCUPATIONS )
 from .forms import CustomUserCreationForm
 
 
@@ -153,11 +153,11 @@ def GetPreCreationData(request):
         ]
 
         # Fetch products and serialize
-        products = Product.objects.select_related('model').all()
+        products = Product.objects.all()
         serialized_products = [
             {
                 'category': product.category,
-                'model': product.model.name
+                'model': product.model
             }
             for product in products
         ]
@@ -369,10 +369,9 @@ def CreateAccount(request):
             return JsonResponse({'status': 'error', 'message': f'Customer with UID {customer_uid} does not exist.'}, status=404)
 
         # Check for product
-        product_model = Model.objects.filter(name=selected_model).first()
-        if not product_model or not product_model.product:
+        product = Product.objects.filter(model=selected_model).first()
+        if not product:
             return JsonResponse({'status': 'error', 'message': 'There is no product associated with the selected model.'}, status=400)
-        product = product_model.product
 
         # Check for guarantors
         first_guarantor = Guarantor.objects.filter(uid=first_guarantor_uid).first()
@@ -504,11 +503,10 @@ def createProduct(request):
         if not category or not model:
             return JsonResponse({'status': 'error', 'message': 'Product category or model can\'t be empty'})
         
-        if Model.objects.filter(name=model).exists():
+        if Product.objects.filter(model=model).exists():
             return JsonResponse({'status': 'error', 'message': f'A product with this ({model}) model already exists!'})
 
-        modelObj = Model.objects.create(name=model)
-        product = Product.objects.create(category=category, model=modelObj)
+        Product.objects.create(category=category, model=model)
         
         data = {
             'category': category,
