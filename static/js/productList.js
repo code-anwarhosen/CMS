@@ -1,6 +1,7 @@
 // Form submission handler
 document.querySelector('form').addEventListener('submit', async function(e) {
     e.preventDefault();
+
     const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value;
     if (!csrfToken) {
         showToast('CSRF Token not found!');
@@ -19,6 +20,9 @@ document.querySelector('form').addEventListener('submit', async function(e) {
         showToast('Please enter product model number.');
         return;
     }
+
+    const createProductBtn = document.getElementById('createProductBtn');
+    createProductBtn?.disabled = true;
     
     try {
         const response = await fetch(`/product/create/`, {
@@ -48,6 +52,7 @@ document.querySelector('form').addEventListener('submit', async function(e) {
     
     // Reset form
     this.reset();
+    createProductBtn?.disabled = false;
 });
 
 

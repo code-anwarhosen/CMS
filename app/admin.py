@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.utils.html import format_html
-from .models import Customer, Model, Product, Contract, Payment, Guarantor, Account
+from .models import Customer, Product, Contract, Payment, Guarantor, Account
 
 
 @admin.register(Customer)
@@ -34,17 +34,12 @@ class CustomerAdmin(admin.ModelAdmin):
     avatar_preview.short_description = 'Avatar Preview'
 
 
-@admin.register(Model)
-class ModelAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name')
-    search_fields = ('name',)
-
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
     list_display = ('id', 'category', 'model')
     list_filter = ('category', 'model')
-    search_fields = ('category', 'model__name')
+    search_fields = ('category', 'model')
 
 
 @admin.register(Contract)
