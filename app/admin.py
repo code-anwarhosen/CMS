@@ -37,21 +37,21 @@ class CustomerAdmin(admin.ModelAdmin):
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ('id', 'category', 'model')
-    list_filter = ('category', 'model')
-    search_fields = ('category', 'model')
+    list_display = ('model', 'category')
+    list_filter = ('model', 'category')
+    search_fields = ('model', 'category')
 
 
 @admin.register(Contract)
 class ContractAdmin(admin.ModelAdmin):
     list_display = ('account', 'cashValue', 'hireValue', 'downPayment', 'monthlyPayment', 'length', 'cashBalance', 'hireBalance')
-    readonly_fields = ('cashBalance', 'hireBalance')
+    readonly_fields = ('uid', 'cashBalance', 'hireBalance', 'totalPaid')
     fieldsets = (
         ('Contract Details', {
-            'fields': ('cashValue', 'hireValue', 'downPayment', 'monthlyPayment', 'length')
+            'fields': ('uid', 'cashValue', 'hireValue', 'downPayment', 'monthlyPayment', 'length')
         }),
         ('Balances', {
-            'fields': ('cashBalance', 'hireBalance')
+            'fields': ('totalPaid', 'cashBalance', 'hireBalance')
         }),
     )
 

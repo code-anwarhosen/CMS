@@ -56,17 +56,25 @@ class Customer(models.Model):
 
 
 class Product(models.Model):
+    model = models.CharField(max_length=100, unique=True, primary_key=True)
     category = models.CharField(max_length=100, choices=PRODUCT_CATEGORIES)
-    model = models.CharField(max_length=100)
 
     def __str__(self):
         return f'{self.category} : {self.model}'
     
+    def save(self, *args, **kwargs):
+        if self.model:
+            self.model = self.model.upper()
+        super().save(*args, **kwargs)
+    
 
 
 class Contract(models.Model):
+    uid = models.CharField(max_length=100, unique=True, blank=True, null=True)
+
     cashValue = models.PositiveIntegerField(help_text="Total cash value")
     hireValue = models.PositiveIntegerField(help_text="Total hire value")
+
     downPayment = models.PositiveIntegerField(help_text="Down payment amount")
     monthlyPayment = models.PositiveIntegerField(help_text="Monthly payment amount")
     length = models.PositiveIntegerField(help_text="Length of the contract in months")
@@ -142,7 +150,7 @@ class Guarantor(models.Model):
     name = models.CharField(max_length=100)  #required
     phone = models.CharField(max_length=14, help_text="Format: +880XXXXXXXXXX", blank=True, null=True)
     address = models.CharField(max_length=500, blank=True, null=True)
-    occupation = models.CharField(max_length=100, blank=True, null=True)
+    occupation = models.CharField(max_length=100, choices=OCCUPATIONS, blank=True, null=True)
 
     def __str__(self):
         return self.name
@@ -194,4 +202,7 @@ class Account(models.Model):
             if not acc_num:
                 raise ValueError("Invalid account number format!")
             self.accountNumber = acc_num
+
+            self.contract.uid = self.accountNumber
+            self.contract.save()
         super().save(*args, **kwargs)

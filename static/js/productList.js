@@ -1,8 +1,9 @@
 // Form submission handler
-document.querySelector('form').addEventListener('submit', async function(e) {
-    e.preventDefault();
+const addProductBtn = document.querySelector('button[type="submit"]');
+addProductBtn.addEventListener('click', async function(event) {
+    event.preventDefault();
 
-    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value;
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
     if (!csrfToken) {
         showToast('CSRF Token not found!');
         console.error('CSRF token not found!');
@@ -21,9 +22,9 @@ document.querySelector('form').addEventListener('submit', async function(e) {
         return;
     }
 
-    const createProductBtn = document.getElementById('createProductBtn');
-    createProductBtn?.disabled = true;
-    
+    addProductBtn.disabled = true;
+    addProductBtn.querySelector('span').textContent = 'Creating...';
+
     try {
         const response = await fetch(`/product/create/`, {
             method: 'POST',
@@ -49,10 +50,12 @@ document.querySelector('form').addEventListener('submit', async function(e) {
         console.error('Error:' + error);
         showToast('An error occurred while adding product.');
     }
+
+    document.getElementById('product-category').value = "";
+    document.getElementById('model-number').value = "";
     
-    // Reset form
-    this.reset();
-    createProductBtn?.disabled = false;
+    addProductBtn.disabled = false;
+    addProductBtn.querySelector('span').textContent = 'Add Product';
 });
 
 
