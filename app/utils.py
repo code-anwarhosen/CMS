@@ -8,9 +8,8 @@ GUARDIAN_TYPES = [
 
 OCCUPATIONS = [
     ('Job', 'Job'),
-    ('Govt Job', 'Govt Job'),
+    ('Govt-Job', 'Govt-Job'),
     ('Business', 'Business'),
-    ('Farmer', 'Farmer'),
     ('Student', 'Student'),
     ('Housewife', 'Housewife'),
     ('Teacher', 'Teacher'),
@@ -23,17 +22,14 @@ OCCUPATIONS = [
 
 
 PRODUCT_CATEGORIES = [
+    ('Television', 'Television'),
     ('Refrigerator', 'Refrigerator'),
-    ('Freezer', 'Freezer'),
-    ('AC', 'AC'),
-    ('TV', 'TV'),
+    ('Deep Freezer', 'Deep Freezer'),
+    ('Air Conditioner', 'Air Conditioner'),
     ('Washing Machine', 'Washing Machine'),
-    ('Oven', 'Oven'),
+    ('Microwave Oven', 'Microwave Oven'),
     ('Sewing Machine', 'Sewing Machine'),
     ('Computer', 'Computer'),
-    ('Small Appliences', 'Small Appliences'),
-    ('Personal Care', 'Personal Care'),
-    ('Smart Gatgets', 'Smart Gatgets'),
     ('Others', 'Others')
 ]
 

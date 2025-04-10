@@ -11,13 +11,13 @@ addProductBtn.addEventListener('click', async function(event) {
     }
     
     const category = document.getElementById('product-category').value;
-    const model = document.getElementById('model-number').value;
+    const models = document.getElementById('model-number').value;
     
     if (!category) {
         showToast('Please select product category.');
         return;
     }
-    if (!model) {
+    if (!models) {
         showToast('Please enter product model number.');
         return;
     }
@@ -25,31 +25,36 @@ addProductBtn.addEventListener('click', async function(event) {
     addProductBtn.disabled = true;
     addProductBtn.querySelector('span').textContent = 'Creating...';
 
-    try {
-        const response = await fetch(`/product/create/`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': csrfToken,
-            },
-            body: JSON.stringify({
-                category: category,
-                model: model
-            }),
-        });
-
-        const result = await response.json();
-
-        if (result.status === 'success') {
-            showToast("Success: " + result.message);
-            insertProductIntoTable(result.data);
-        } else {
-            showToast("Error: " + result.message);
-        }
-    } catch (error) {
-        console.error('Error:' + error);
-        showToast('An error occurred while adding product.');
-    }
+    const productModels = models.split(';').map(model => model.trim()).filter(model => model !== "");
+    await Promise.all(
+        productModels.map(async (model) => {
+            try {
+                const response = await fetch(`/product/create/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrfToken,
+                    },
+                    body: JSON.stringify({
+                        category: category,
+                        model: model
+                    }),
+                });
+        
+                const result = await response.json();
+        
+                if (result.status === 'success') {
+                    showToast("Success: " + result.message);
+                    insertProductIntoTable(result.data);
+                } else {
+                    showToast("Error: " + result.message);
+                }
+            } catch (error) {
+                console.error('Error:' + error);
+                showToast('An error occurred while adding product.');
+            }
+        })
+    );
 
     document.getElementById('product-category').value = "";
     document.getElementById('model-number').value = "";
