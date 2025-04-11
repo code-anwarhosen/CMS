@@ -3,7 +3,7 @@
 {% block title %}Sign Up{% endblock title %}
 
 {% block content %}
-<main class="flex items-center justify-center min-h-screen mt-4">
+<main class="flex items-center justify-center min-h-screen my-4">
     <!-- Signup Card -->
     <div class="bg-gray-800 p-8 rounded-lg shadow-lg w-[95vw] max-w-md border border-gray-700">
         <h2 class="text-3xl font-bold text-white text-center mb-6">Sign Up</h2>
@@ -14,7 +14,7 @@
 
             <!-- UserName Input -->
             <div>
-                <label for="id_username" class="block text-sm font-medium text-gray-300">{{form.username.label }} *</label>
+                <label for="id_username" class="block text-sm font-medium text-gray-300">{{form.username.label }} (Shop Code) *</label>
                 {{ form.username }}
             </div>
 

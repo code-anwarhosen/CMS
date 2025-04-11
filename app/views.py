@@ -90,7 +90,7 @@ def AccountDetailsView(request, pk):
         messages.info(request, 'The account you are trying to access does not exists!')
         return redirect('home')
     
-    payments = account.contract.payments.all().order_by('date')
+    payments = account.contract.payments.all().order_by('date') if account.contract else None
     return render(request, 'pages/accountDetails.html', {'account': account, 'payments': payments})
 
 
@@ -393,6 +393,7 @@ def CreateAccount(request):
         # Create contract
         try:
             contract = Contract.objects.create(
+                uid=account.accountNumber,
                 cashValue=int(data['cashValue']),
                 hireValue=int(data['hireValue']),
                 downPayment=int(data['downPayment']),

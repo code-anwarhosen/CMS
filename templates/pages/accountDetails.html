@@ -9,7 +9,7 @@
 
 {% block content %}
 <!-- Main Container -->
-<div class="max-w-7xl mx-auto p-6 space-y-8 text-gray-100">
+<div class="max-w-7xl mx-auto p-3 space-y-3 text-gray-100">
 
     <!-- Header Section -->
     <header class="bg-gray-800 rounded-xl p-6 shadow-lg">
@@ -28,13 +28,14 @@
                         <span class="font-medium">
                             {% if account.isActive %}
                                 Active
+                                <button onclick="closeAccount('{{ account.accountNumber }}')" class="bg-gray-300 text-gray-800 px-1 rounded">Close</button>
                             {% else %}
                                 Closed
                             {% endif %}
                         </span>
                     </div>
                     <div>
-                        <span class="text-gray-400">Date of Sale:</span>
+                        <span class="text-gray-400">Date:</span>
                         <span class="font-medium">{{ account.saleDate }}</span>
                     </div>
                 </div>
@@ -94,105 +95,66 @@
         </div>
     </section>
 
-    <!-- Guarantor & Contract Terms Section -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <!-- Guarantor Details -->
-        <section class="bg-gray-800 rounded-xl shadow-lg">
-            <div class="w-full px-6 text-left flex justify-between items-center">
-                <h2 class="text-xl font-semibold">Guarantor Details</h2>
-    
-                <button onclick="toggleSection('guarantorDetails')" class="p-6 transition-transform duration-500 hover:rotate-90 hover:scale-150 hover:font-bold">
-                    <i id="guarantorDetailsIcon" class="fas fa-plus text-gray-400"></i>
-                </button>
-            </div>
 
-            <div id="guarantorDetails" class="px-6 pb-6 hidden">
-                <div class="grid grid-cols-2 gap-6">
-                    <div class="space-y-3">
-                        <h3 class="text-blue-400 font-medium mb-2">1st Guarantor</h3>
 
-                        {% with account.guarantors.first as first_guarantor %}
-                            {% if first_guarantor %}
-                            <div>
-                                <label class="text-gray-400">Name:</label>
-                                <p class="font-medium">{{ first_guarantor.name }}</p>
-                            </div>
-                            <div>
-                                <label class="text-gray-400">Mobile:</label>
-                                <p class="font-medium">{{ first_guarantor.phone }}</p>
-                            </div>
-                            <div>
-                                <label class="text-gray-400">Occupation:</label>
-                                <p class="font-medium">{{ first_guarantor.occupation }}</p>
-                            </div>
-                            {% endif %}
-                        {% endwith %}
-                    </div>
+    <!-- Guarantor Details -->
+    <section class="bg-gray-800 rounded-xl shadow-lg">
+        <div class="w-full px-6 text-left flex justify-between items-center">
+            <h2 class="text-xl font-semibold">Guarantor Details</h2>
 
-                    <div class="space-y-3">
-                        <h3 class="text-blue-400 font-medium mb-2">2nd Guarantor</h3>
+            <button onclick="toggleSection('guarantorDetails')" class="p-6 transition-transform duration-500 hover:rotate-90 hover:scale-150 hover:font-bold">
+                <i id="guarantorDetailsIcon" class="fas fa-plus text-gray-400"></i>
+            </button>
+        </div>
 
-                        {% with account.guarantors.last as last_guarantor %}
-                            {% if last_guarantor %}
-                            <div>
-                                <label class="text-gray-400">Name:</label>
-                                <p class="font-medium">{{ last_guarantor.name }}</p>
-                            </div>
-                            <div>
-                                <label class="text-gray-400">Mobile:</label>
-                                <p class="font-medium">{{ last_guarantor.phone }}</p>
-                            </div>
-                            <div>
-                                <label class="text-gray-400">Occupation:</label>
-                                <p class="font-medium">{{ last_guarantor.occupation }}</p>
-                            </div>
-                            {% endif %}
-                        {% endwith %}
-                    </div>
+        <div id="guarantorDetails" class="px-6 pb-6 hidden">
+            <div class="grid grid-cols-2 gap-6">
+                <div class="space-y-3">
+                    <h3 class="text-blue-400 font-medium mb-2">1st Guarantor</h3>
+
+                    {% with account.guarantors.first as first_guarantor %}
+                        {% if first_guarantor %}
+                        <div>
+                            <label class="text-gray-400">Name:</label>
+                            <p class="font-medium">{{ first_guarantor.name }}</p>
+                        </div>
+                        <div>
+                            <label class="text-gray-400">Mobile:</label>
+                            <p class="font-medium">{{ first_guarantor.phone }}</p>
+                        </div>
+                        <div>
+                            <label class="text-gray-400">Occupation:</label>
+                            <p class="font-medium">{{ first_guarantor.occupation }}</p>
+                        </div>
+                        {% endif %}
+                    {% endwith %}
+                </div>
+
+                <div class="space-y-3">
+                    <h3 class="text-blue-400 font-medium mb-2">2nd Guarantor</h3>
+
+                    {% with account.guarantors.last as last_guarantor %}
+                        {% if last_guarantor %}
+                        <div>
+                            <label class="text-gray-400">Name:</label>
+                            <p class="font-medium">{{ last_guarantor.name }}</p>
+                        </div>
+                        <div>
+                            <label class="text-gray-400">Mobile:</label>
+                            <p class="font-medium">{{ last_guarantor.phone }}</p>
+                        </div>
+                        <div>
+                            <label class="text-gray-400">Occupation:</label>
+                            <p class="font-medium">{{ last_guarantor.occupation }}</p>
+                        </div>
+                        {% endif %}
+                    {% endwith %}
                 </div>
             </div>
-        </section>
+        </div>
+    </section>
 
-        <!-- Contract Terms -->
-        <section class="bg-gray-800 rounded-xl shadow-lg">
-            <div class="w-full px-6 text-left flex justify-between items-center">
-                <h2 class="text-xl font-semibold">Contract Terms</h2>
-    
-                <button onclick="toggleSection('contractTerms')" class="p-6 transition-transform duration-500 hover:rotate-90 hover:scale-150 hover:font-bold">
-                    <i id="contractTermsIcon" class="fas fa-plus text-gray-400"></i>
-                </button>
-            </div>
-            
-            <div id="contractTerms" class="px-6 pb-6 hidden">
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="space-y-2">
-                        <label class="text-gray-400">Cash Value:</label>
-                        <p class="text-xl font-semibold text-blue-400">{{ account.contract.cashValue }}</p>
-                    </div>
-                    <div class="space-y-2">
-                        <label class="text-gray-400">Hire Value:</label>
-                        <p class="text-xl font-semibold text-blue-400">{{ account.contract.hireValue }}</p>
-                    </div>
-                    <div class="space-y-2">
-                        <label class="text-gray-400">Down Payment:</label>
-                        <p class="text-xl font-semibold">{{ account.contract.downPayment }}</p>
-                    </div>
-                    <div class="space-y-2">
-                        <label class="text-gray-400">Monthly Payment:</label>
-                        <p class="text-xl font-semibold">{{ account.contract.monthlyPayment }}</p>
-                    </div>
-                    <div class="space-y-2">
-                        <label class="text-gray-400">Balance Amount:</label>
-                        <p id="cashBalance" class="text-2xl font-bold text-green-400">{{ account.contract.cashBalance }}</p>
-                    </div>
-                    <div class="space-y-2">
-                        <label class="text-gray-400">Contract Length:</label>
-                        <p class="text-xl font-semibold">{{ account.contract.length }} Months</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-    </div>
+
 
     <!-- Product Details -->
     <section class="bg-gray-800 rounded-xl shadow-lg">
@@ -212,7 +174,7 @@
                 </div>
                 <div>
                     <label class="text-gray-400">Model:</label>
-                    <p class="font-medium">{{ account.product.model.name }}</p>
+                    <p class="font-medium">{{ account.product.model }}</p>
                 </div>
                 <!-- <div class="col-span-2">
                     <div class="bg-yellow-200/20 text-yellow-400 p-3 rounded-lg">
@@ -222,6 +184,49 @@
             </div>
         </div>
     </section>
+
+
+    <!-- Contract Terms -->
+    <section class="bg-gray-800 rounded-xl shadow-lg">
+        <div class="w-full px-6 text-left flex justify-between items-center">
+            <h2 class="text-xl font-semibold">Contract Terms</h2>
+
+            <button onclick="toggleSection('contractTerms')" class="p-6 transition-transform duration-500 hover:rotate-90 hover:scale-150 hover:font-bold">
+                <i id="contractTermsIcon" class="fas fa-plus text-gray-400"></i>
+            </button>
+        </div>
+        
+        <div id="contractTerms" class="px-6 pb-6 hidden">
+            <div class="grid grid-cols-2 gap-4">
+                <div class="space-y-2">
+                    <label class="text-gray-400">Cash Value:</label>
+                    <p class="text-xl font-semibold text-blue-400">{{ account.contract.cashValue }}</p>
+                </div>
+                <div class="space-y-2">
+                    <label class="text-gray-400">Hire Value:</label>
+                    <p class="text-xl font-semibold text-blue-400">{{ account.contract.hireValue }}</p>
+                </div>
+                <div class="space-y-2">
+                    <label class="text-gray-400">Down Payment:</label>
+                    <p class="text-xl font-semibold">{{ account.contract.downPayment }}</p>
+                </div>
+                <div class="space-y-2">
+                    <label class="text-gray-400">Monthly Payment:</label>
+                    <p class="text-xl font-semibold">{{ account.contract.monthlyPayment }}</p>
+                </div>
+                <div class="space-y-2">
+                    <label class="text-gray-400">Balance Amount:</label>
+                    <p id="cashBalance" class="text-2xl font-bold text-green-400">{{ account.contract.cashBalance }}</p>
+                </div>
+                <div class="space-y-2">
+                    <label class="text-gray-400">Contract Length:</label>
+                    <p class="text-xl font-semibold">{{ account.contract.length }} Months</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    
 
     <!-- Payment Schedule -->
     <section class="bg-gray-800 rounded-xl shadow-lg">

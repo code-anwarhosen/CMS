@@ -108,7 +108,6 @@ class Contract(models.Model):
             else:  # Contract is being updated
                 self.cashBalance = self.cashValue - self.totalPaid
                 self.hireBalance = self.hireValue - self.totalPaid
-
             super().save(*args, **kwargs)
 
     def __str__(self):
@@ -203,6 +202,7 @@ class Account(models.Model):
                 raise ValueError("Invalid account number format!")
             self.accountNumber = acc_num
 
-            self.contract.uid = self.accountNumber
-            self.contract.save()
+            if self.contract:
+                self.contract.uid = self.accountNumber
+                self.contract.save(update_fields=['uid'])
         super().save(*args, **kwargs)

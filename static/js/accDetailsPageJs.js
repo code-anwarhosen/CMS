@@ -150,3 +150,11 @@ openBtn.addEventListener('click', () => toggleModal(true));
 closeBtns.forEach(btn => btn.addEventListener('click', () => toggleModal(false)));
 modal.addEventListener('click', (e) => e.target === modal && toggleModal(false));
 document.addEventListener('keydown', (e) => e.key === 'Escape' && toggleModal(false));
+
+
+
+
+// Close account section
+function closeAccount(account) {
+    alert(account + ' is being closed');
+}
