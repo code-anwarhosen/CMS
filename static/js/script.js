@@ -80,3 +80,65 @@ function showToast(message, duration = 5000) {
         }, 500); // Match the fade-out animation duration
     }, duration);
 }
+
+
+// Show modal, return true false
+function askConfirmation(message, title = "Confirm") {
+    return new Promise((resolve) => {
+        // Create overlay element
+        const overlay = document.createElement('div');
+        overlay.className = 'fixed inset-0 bg-black/50 flex items-center justify-center z-50';
+        
+        // Modal HTML template
+        overlay.innerHTML = `
+            <div class="text-gray-300 bg-gray-800 rounded-lg shadow-lg w-[90vw] sm:w-[350px] max-w-md p-4">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-semibold text-white">${title}</h3>
+                    <button class="hover:text-gray-500 rounded px-2">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="mb-6">${message}</div>
+
+                <div class="flex justify-end gap-2">
+                    <button class="px-4 py-2 hover:bg-red-500 rounded">
+                        <i class="fas fa-times"></i>
+                    </button>
+                    <button class="px-4 py-2 bg-gray-700 hover:bg-blue-500 rounded">
+                        <i class="fas fa-check"></i>
+                    </button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(overlay);
+
+        // Get button references
+        const [closeBtn, cancelBtn, yesBtn] = overlay.querySelectorAll('button');
+
+        // Close handler
+        const closeModal = (result) => {
+            overlay.remove();
+            resolve(result);
+        };
+
+        // Event listeners
+        closeBtn.onclick = () => closeModal(false);
+        cancelBtn.onclick = () => closeModal(false);
+        yesBtn.onclick = () => closeModal(true);
+        
+        // Close when clicking outside modal
+        overlay.onclick = (e) => {
+            if (e.target === overlay) closeModal(false);
+        };
+
+        // Close with Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeModal(false);
+        });
+
+        // Close with Ender key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') closeModal(true);
+        });
+    });
+}
