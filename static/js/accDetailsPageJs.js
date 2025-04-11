@@ -156,5 +156,7 @@ document.addEventListener('keydown', (e) => e.key === 'Escape' && toggleModal(fa
 
 // Close account section
 function closeAccount(account) {
-    alert(account + ' is being closed');
+    askConfirmation("This action will close this account: " + account).then((confirmed) => {
+        confirmed ? alert('Account is being closed') : alert('Account is not being closed');
+    });
 }
