@@ -22,7 +22,7 @@ class CustomUserCreationForm(UserCreationForm):
 
         self.fields['username'].widget.attrs.update({
             'class': tailwindcss_classes_register_form,
-            'placeholder': 'Username',
+            'placeholder': 'Username (Shop Code) Ex: dkcb',
             'autofocus': True
         })
         self.fields['username'].label = 'User Name'
