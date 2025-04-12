@@ -88,10 +88,12 @@ function askConfirmation(message, title = "Confirm") {
         // Create overlay element
         const overlay = document.createElement('div');
         overlay.className = 'fixed inset-0 bg-black/50 flex items-center justify-center z-50';
+        overlay.style.opacity = '0';
+        overlay.style.transition = 'opacity 500ms ease';
         
         // Modal HTML template
         overlay.innerHTML = `
-            <div class="text-gray-300 bg-gray-800 rounded-lg shadow-lg w-[90vw] sm:w-[350px] max-w-md p-4">
+            <div class="text-gray-300 bg-gray-800 rounded-lg shadow-lg w-[90vw] sm:w-[350px] max-w-md p-4 transform transition-all duration-200 ease-out translate-y-4 opacity-0">
                 <div class="flex justify-between items-center mb-4">
                     <h3 class="text-lg font-semibold text-white">${title}</h3>
                     <button class="hover:text-gray-500 rounded px-2">
@@ -111,15 +113,32 @@ function askConfirmation(message, title = "Confirm") {
             </div>
         `;
         document.body.appendChild(overlay);
-
-        // Get button references
-        const [closeBtn, cancelBtn, yesBtn] = overlay.querySelectorAll('button');
+        
+        // Force reflow to enable transition
+        void overlay.offsetWidth;
+        
+        // Show overlay and modal
+        overlay.style.opacity = '1';
+        const modal = overlay.querySelector('div');
+        modal.style.opacity = '1';
+        modal.style.transform = 'translate-y-0';
 
         // Close handler
         const closeModal = (result) => {
-            overlay.remove();
-            resolve(result);
+            // Start fade out animation
+            overlay.style.opacity = '0';
+            modal.style.opacity = '0';
+            modal.style.transform = 'translate-y-4';
+            
+            // Remove after animation completes
+            setTimeout(() => {
+                overlay.remove();
+                resolve(result);
+            }, 300);
         };
+
+        // Get button references
+        const [closeBtn, cancelBtn, yesBtn] = overlay.querySelectorAll('button');
 
         // Event listeners
         closeBtn.onclick = () => closeModal(false);
@@ -131,14 +150,10 @@ function askConfirmation(message, title = "Confirm") {
             if (e.target === overlay) closeModal(false);
         };
 
-        // Close with Escape key
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') closeModal(false);
-        });
-
-        // Close with Ender key
+        // Close with Enter/Escape key
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') closeModal(true);
+            if (e.key === 'Escape') closeModal(false);
         });
     });
 }
