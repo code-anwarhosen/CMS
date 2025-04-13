@@ -183,6 +183,9 @@ class Account(models.Model):
 
     def __str__(self):
         return self.accountNumber
+    
+    class Meta:
+        ordering = ['-accountNumber']
 
     def validate_and_format(self, account_number):
         pattern = r'^[a-z]{3}-h\d+$'
@@ -207,8 +210,3 @@ class Account(models.Model):
                 self.contract.save(update_fields=['uid'])
         super().save(*args, **kwargs)
 
-    def delete(self, *args, **kwargs):
-        contract = self.contract
-        if contract:
-            contract.delete()
-        super().delete(*args, **kwargs)
