@@ -22,6 +22,19 @@ overlay.addEventListener('click', () => {
 
 
 
+
+
+function setSaleDate(dateInputElement) {
+    if (!dateInputElement) return;
+    
+    const today = new Date().toLocaleDateString('en-CA'); // 'en-CA' gives YYYY-MM-DD format
+    dateInputElement.value = today;
+    dateInputElement.max = today;
+}
+
+
+
+
 function showToast(message, duration = 5000) {
     // Create a <style> element for the CSS
     const style = document.createElement('style');
@@ -80,6 +93,9 @@ function showToast(message, duration = 5000) {
         }, 500); // Match the fade-out animation duration
     }, duration);
 }
+
+
+
 
 
 // Show modal, return true false

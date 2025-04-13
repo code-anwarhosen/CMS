@@ -15,6 +15,7 @@ OCCUPATIONS = [
     ('Teacher', 'Teacher'),
     ('Doctor', 'Doctor'),
     ('Plumber', 'Plumber'),
+    ('Driver', 'Driver'),
     ('Technician', 'Technician'),
     ('Electrician', 'Electrician'),
     ('Others', 'Others')

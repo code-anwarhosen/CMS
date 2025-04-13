@@ -1,7 +1,7 @@
 from django.db import transaction
 from django.dispatch import receiver
 from django.db.models.signals import pre_save, post_save, post_delete
-from .models import Payment
+from .models import Payment, Account
 
 # Signal handler for when a Payment is about to be saved (pre_save)
 @receiver(pre_save, sender=Payment)
@@ -43,3 +43,10 @@ def update_contract_on_payment_delete(sender, instance, **kwargs):
         contract.hireBalance += instance.amount
         contract.save()
 
+
+# Signal handler for when a Account is deleted
+@receiver(post_delete, sender=Account)
+def delete_related_models_when_account_deleted(sender, instance, **kwargs):
+    contract = getattr(instance, 'contract', None)
+    if contract:
+        contract.delete()

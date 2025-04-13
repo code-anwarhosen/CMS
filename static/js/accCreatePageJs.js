@@ -48,6 +48,10 @@ const UIDOM = {
     length: document.getElementById('length'),
 };
 
+
+setSaleDate(UIDOM.saleDate);
+
+
 // Global data storage
 let appData = {
     customers: [],
@@ -299,6 +303,8 @@ async function handleCreateCustomerSubmit(event) {
         if (result.status === 'success') {
             showToast("Success: " + result.message);
             appData.customers.push(result.customer);
+
+            event.target.reset();
             closeCreateCustomerModal();
             fetchCustomerDetails("", true, result.customer);
         } else {
@@ -355,6 +361,7 @@ async function handleCreateGuarantorSubmit(event) {
                 fetchGuarantorDetails(result.guarantor.uid, 'second');
             }
 
+            event.target.reset();
             closeCreateGuarantorModal();
         } else {
             showToast("Error: " + result.message);
@@ -402,9 +409,8 @@ async function submitForm() {
         }
     }
 
-    const submitButton = UIDOM.createAccountBtn;
-    submitButton.disabled = true;
-    submitButton.innerHTML = 'Submitting...';
+    UIDOM.createAccountBtn.disabled = true;
+    UIDOM.createAccountBtn.innerHTML = 'Submitting...';
 
     try {
         const response = await fetch('/account/create/', {
@@ -420,9 +426,20 @@ async function submitForm() {
 
         if (result.status === 'success') {
             showToast("Success: " + result.message);
-            setTimeout(() => {
-                window.location.href = '/';
-            }, 2000);
+
+            UIDOM.accountNumber.value = '';
+            UIDOM.customerUid.value = '';
+            UIDOM.firstGuarantorUid.value = '';
+            UIDOM.secondGuarantorUid.value = '';
+            UIDOM.productCategory.value = '';
+            UIDOM.selectedModelName.textContent = '';
+
+            UIDOM.cashValue.value = '';
+            UIDOM.hireValue.value = '';
+            UIDOM.downPayment.value = '';
+            UIDOM.monthlyPayment.value = '';
+            UIDOM.length.value = '';
+            setSaleDate(UIDOM.saleDate);
         } else {
             showToast("Error: " + result.message);
         }
@@ -430,8 +447,8 @@ async function submitForm() {
         console.error('Error:', error);
         showToast('An error occurred while creating the account.');
     } finally {
-        submitButton.disabled = false;
-        submitButton.innerHTML = 'Create Account';
+        UIDOM.createAccountBtn.disabled = false;
+        UIDOM.createAccountBtn.innerHTML = 'Create Account';
     }
 }
 
