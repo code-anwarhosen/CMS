@@ -10,6 +10,8 @@ let AccDetilsDOM = {
     cashBalance: document.getElementById('cashBalance'),
 }
 
+setSaleDate(AccDetilsDOM.paymentDate);
+
 AccDetilsDOM.paymentSubmitBtn.addEventListener('click', () => {
     createNewPayment();
 });
@@ -45,7 +47,7 @@ function addToPaymentTable(payment) {
 
 // Submit Form
 async function createNewPayment() {
-    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value;
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
     if (!csrfToken) {
         console.error('CSRF token not found!');
         return;
@@ -86,6 +88,9 @@ async function createNewPayment() {
             addToPaymentTable(result.data);
             toggleModal(false);
 
+            AccDetilsDOM.paymentAmount.value = '';
+            AccDetilsDOM.receiptNumber.value = '';
+            setSaleDate(AccDetilsDOM.paymentDate);
         } else {
             showToast("Error: " + result.message);
         }
@@ -97,13 +102,6 @@ async function createNewPayment() {
         AccDetilsDOM.paymentSubmitBtn.innerHTML = "Create";
     }
 }
-
-
-
-// set default date in payment modal input
-const today = new Date().toLocaleDateString('en-CA'); // 'en-CA' gives YYYY-MM-DD format
-AccDetilsDOM.paymentDate.value = today;
-AccDetilsDOM.paymentDate.max = today;
 
 
 

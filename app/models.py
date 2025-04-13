@@ -206,3 +206,9 @@ class Account(models.Model):
                 self.contract.uid = self.accountNumber
                 self.contract.save(update_fields=['uid'])
         super().save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        contract = self.contract
+        if contract:
+            contract.delete()
+        super().delete(*args, **kwargs)
